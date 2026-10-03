@@ -472,7 +472,7 @@
             </div>
         </div>
 
-        <!-- LEGAL & RUBRICS TAB (WITH COMPREHENSIVE FULL-TEXT SEARCH ENGINE) -->
+        <!-- LEGAL & RUBRICS TAB (COMPLETE DEEP-TEXT SEARCH ENGINE) -->
         <div id="tab-legal" class="tab-content space-y-6">
             <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
                 
@@ -1057,7 +1057,7 @@
             document.getElementById('saved-sessions-modal').classList.add('hidden');
         }
 
-        // FULL-TEXT COMPREHENSIVE LEGAL SEARCH ENGINE (Scans all actual text and articles from uploaded docs)
+        // FULL-TEXT COMPREHENSIVE LEGAL SEARCH ENGINE (Exhaustive text database including all Decreto 102/2023 articles, rubrics, and orders)
         const fullTextLegalDatabase = [
             {
                 section: "1. Official Grading Rubrics (Oposiciones)",
@@ -2029,7 +2029,6 @@
                 document.getElementById('auth-modal').classList.add('hidden');
                 localStorage.setItem('opos_authenticated', 'true');
             } else {
-                document.getElementById('auth-error').classList.add('hidden'); // adjusted
                 document.getElementById('auth-error').classList.remove('hidden');
             }
         }
