@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Units & Daily Planner - English Oposiciones</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCRASuU5amajWJbgmS7x48Z10x5jCVHM2w",
+            authDomain: "control-de-asistencia-idiomas.firebaseapp.com",
+            databaseURL: "https://control-de-asistencia-idiomas-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "control-de-asistencia-idiomas",
+            storageBucket: "control-de-asistencia-idiomas.appspot.com",
+            messagingSenderId: "964518265307",
+            appId: "1:964518265307:web:eb8ee15df48453b00da7fe"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        window.db = db;
+        window.rtdbRef = ref;
+        window.rtdbSet = set;
+        window.rtdbGet = get;
+        window.rtdbChild = child;
+        
+        window.dispatchEvent(new Event('firebase-ready'));
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 antialiased flex flex-col">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                    <i class="fa-solid fa-graduation-cap text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 leading-tight">Units & Daily Planner - English Oposiciones</h1>
+                    <p class="text-xs text-slate-500">Comprehensive Syllabus, Practical Cases, Daily Plan & Weekly Schedule <span class="text-indigo-600 font-medium ml-1">&bull; Created by Ana Martínez Fuentes</span></p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span id="syncStatus" class="text-xs font-medium px-3 py-1 rounded-full bg-slate-100 text-slate-600">☁️ Connected</span>
+                <button onclick="syncToCloud(true)" class="hidden sm:inline-flex items-center px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition shadow-sm">
+                    <i class="fa-solid fa-rotate mr-2"></i> Sync Now
+                </button>
+                <a href="https://notebook.google.com/notebook/de4ed6e6-c083-4c7d-bf6b-cf6239e5c10f" target="_blank" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium transition shadow-sm">
+                    <i class="fa-solid fa-robot mr-2"></i> NotebookLM
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-white border-b border-slate-200 sticky top-16 z-20 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto space-x-8">
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-indigo-600 text-indigo-600 whitespace-nowrap flex items-center space-x-2">
+                <i class="fa-solid fa-chart-pie"></i><span>Dashboard & Overview</span>
+            </button>
+            <button onclick="switchTab('temario')" id="nav-temario" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
+                <i class="fa-solid fa-book-open"></i><span>Syllabus (69 Units)</span>
+            </button>
+            <button onclick="switchTab('practicas')" id="nav-practicas" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
+                <i class="fa-solid fa-pen-nib"></i><span>Practical Cases Zone</span>
+            </button>
+            <button onclick="switchTab('daily')" id="nav-daily" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
+                <i class="fa-solid fa-calendar-day"></i><span>Daily Plan</span>
+            </button>
+            <button onclick="switchTab('schedule')" id="nav-schedule" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
+                <i class="fa-solid fa-calendar-days"></i><span>Weekly Schedule & Tracker</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- DASHBOARD TAB -->
+        <div id="tab-dashboard" class="tab-content active space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-book"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-slate-500">Units Studied</p>
+                        <h3 id="stat-units-studied" class="text-2xl font-bold text-slate-900">0 / 69</h3>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-percent"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-slate-500">Syllabus Progress</p>
+                        <h3 id="stat-syllabus-progress" class="text-2xl font-bold text-slate-900">0%</h3>
+                    </div>
+                </div>
+                <!-- Practical Cases Counter Card with Small Reset Button -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-tasks"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500">Practical Cases</p>
+                            <h3 id="stat-practicals-count" class="text-2xl font-bold text-slate-900">0</h3>
+                        </div>
+                    </div>
+                    <button onclick="promptResetPracticalCount()" class="w-6 h-6 rounded-md bg-slate-100 hover:bg-rose-100 text-slate-400 hover:text-rose-600 text-[10px] flex items-center justify-center transition" title="Restoring Practical Cases to 0?">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-slate-500">Study Hours</p>
+                        <h3 id="stat-study-hours" class="text-2xl font-bold text-slate-900">0h</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">Syllabus Blocks Breakdown</h2>
+                                <p class="text-xs text-slate-500">Click any block to inspect its included units</p>
+                            </div>
+                            <button onclick="switchTab('temario')" class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">View all units &rarr;</button>
+                        </div>
+                        <div id="dashboard-blocks-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+                        <h2 class="text-lg font-bold text-slate-900 mb-4">Upcoming Practical Deadlines (Urgent First)</h2>
+                        <div id="dashboard-upcoming-practicals" class="space-y-3"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Larger Daily Plan Preview Card with Checkboxes -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-calendar-day mr-1.5 text-indigo-600"></i>Today's Daily Plan Preview</h3>
+                            <button onclick="switchTab('daily')" class="text-xs font-semibold text-indigo-600 hover:underline">View All &rarr;</button>
+                        </div>
+                        <div id="dashboard-daily-preview" class="space-y-2 max-h-80 overflow-y-auto pr-1 text-xs"></div>
+                    </div>
+
+                    <!-- Smaller Quick Notes Card -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs">
+                        <h3 class="font-bold text-slate-900 text-xs mb-2"><i class="fa-solid fa-note-sticky mr-1.5 text-amber-500"></i>Quick Notes</h3>
+                        <textarea id="quick-notes" oninput="saveQuickNotes()" placeholder="Jot down key LOMLOE articles, royal decrees, defense tips..." class="w-full h-16 p-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none"></textarea>
+                    </div>
+
+                    <!-- Soft Tone Compact Study Timer Card with Manual Minute Adjustment -->
+                    <div class="bg-gradient-to-br from-indigo-50 to-sky-50 border border-indigo-100 text-slate-800 rounded-2xl p-4 shadow-xs">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-xs text-indigo-900"><i class="fa-solid fa-stopwatch mr-1.5 text-indigo-500"></i>Study Timer</h3>
+                            <div class="flex items-center space-x-1">
+                                <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-medium">Pomodoro</span>
+                                <input type="number" id="timer-custom-mins" min="1" max="120" value="25" onchange="setCustomTimer(this.value)" class="w-10 text-center text-xs font-bold text-indigo-900 rounded bg-white border border-indigo-200 py-0.5" title="Set minutes">
+                            </div>
+                        </div>
+                        <div class="text-center py-1">
+                            <div id="dash-timer-display" class="text-3xl font-extrabold tracking-wider font-mono text-indigo-900">25:00</div>
+                        </div>
+                        <div class="flex space-x-2 mt-2">
+                            <button onclick="toggleTimer()" id="dash-timer-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-1.5 rounded-xl text-xs transition shadow-xs">Start Timer</button>
+                            <button onclick="resetTimer()" class="px-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs transition"><i class="fa-solid fa-rotate-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SYLLABUS TAB -->
+        <div id="tab-temario" class="tab-content space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Syllabus Units Tracker (69 Units)</h2>
+                        <p class="text-sm text-slate-500">Track study dates, reading completion, summaries, spaced repetition intervals, and difficulty levels.</p>
+                    </div>
+                    <button onclick="resetAllData()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-medium transition shadow-sm">
+                        <i class="fa-solid fa-trash-can mr-2"></i> Reset All Data
+                    </button>
+                </div>
+
+                <div class="filter-bar flex flex-wrap gap-3 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex-1 min-w-[220px]">
+                        <input type="text" id="buscador" placeholder="🔍 Search unit by title or number..." oninput="renderizarTemas()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <select id="filtroBloque" onchange="renderizarTemas()" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="todos">All Blocks</option>
+                            <option value="METHODOLOGY">METHODOLOGY</option>
+                            <option value="COMMUNICATION">COMMUNICATION</option>
+                            <option value="PHONETICS & PHONOLOGY">PHONETICS & PHONOLOGY</option>
+                            <option value="LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES">LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES</option>
+                            <option value="TEXT ANALYSIS & DISCOURSE ANALYSIS">TEXT ANALYSIS & DISCOURSE ANALYSIS</option>
+                            <option value="GREAT BRITAIN">GREAT BRITAIN</option>
+                            <option value="THE UNITED STATES">THE UNITED STATES</option>
+                            <option value="SOCIETY & CULTURE">SOCIETY & CULTURE</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center">
+                        <span id="contadorTemas" class="text-xs font-semibold text-slate-500 bg-white px-3 py-2 rounded-lg border border-slate-200"></span>
+                    </div>
+                </div>
+
+                <div class="table-container overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                                <th class="p-3">Block</th>
+                                <th class="p-3">Unit</th>
+                                <th class="p-3">Study Date</th>
+                                <th class="p-3 text-center">Read</th>
+                                <th class="p-3 text-center">Summ</th>
+                                <th class="p-3">Next Repetition</th>
+                                <th class="p-3">Level</th>
+                                <th class="p-3">Progress</th>
+                                <th class="p-3 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaTemasBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRACTICAL CASES TAB -->
+        <div id="tab-practicas" class="tab-content space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+                <h2 class="text-xl font-bold text-slate-900 mb-1">Practical Cases Zone</h2>
+                <p class="text-sm text-slate-500 mb-6">Manage practice blocks, practical case typologies (A, B, C), start/end time, assigned units, and deadlines.</p>
+
+                <!-- Model Typology Banner Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div class="p-4 rounded-2xl border border-rose-200 bg-rose-50/60 flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">A</div>
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider font-extrabold text-rose-800 block">Model A</span>
+                            <h4 class="font-bold text-slate-900 text-xs">ANALYSIS, LINGUISTICS & WRITING</h4>
+                        </div>
+                    </div>
+                    <div class="p-4 rounded-2xl border border-teal-200 bg-teal-50/60 flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-teal-700 text-white flex items-center justify-center font-bold text-lg shadow-sm">B</div>
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider font-extrabold text-teal-800 block">Model B</span>
+                            <h4 class="font-bold text-slate-900 text-xs">ADVANCED GRAMMAR & VOCABULARY</h4>
+                        </div>
+                    </div>
+                    <div class="p-4 rounded-2xl border border-amber-200 bg-amber-50/60 flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">C</div>
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider font-extrabold text-amber-800 block">Model C</span>
+                            <h4 class="font-bold text-slate-900 text-xs">READING & CONTEXTUAL LANGUAGE</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h3 class="font-bold text-slate-900 text-sm mb-3"><i class="fa-solid fa-folder-plus text-indigo-600 mr-2"></i>Add New Practice Block</h3>
+                        <div class="space-y-3">
+                            <input type="text" id="nuevoNombreBloque" placeholder="Block name (e.g. Block 5)" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <button onclick="agregarBloque()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg text-sm transition">Add Block</button>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h3 class="font-bold text-slate-900 text-sm mb-3"><i class="fa-solid fa-circle-plus text-indigo-600 mr-2"></i>Add Practical Case</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                            <select id="nuevaPracticaBloque" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white font-medium"></select>
+                            <select id="nuevaPracticaNum" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white font-medium">
+                                <script>for(let i=1; i<=34; i++) document.write(`<option value="${i}">Case ${i}</option>`);</script>
+                            </select>
+                            <select id="nuevaPracticaTipo" onchange="onNewPracticalTypeChange(this.value)" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white font-bold text-indigo-600">
+                                <option value="A">Type A</option>
+                                <option value="B">Type B</option>
+                                <option value="C">Type C</option>
+                            </select>
+                            <input type="date" id="nuevaPracticaFecha" class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                            <div class="flex items-center space-x-1">
+                                <select id="nuevaPracticaStart" class="w-full px-2 py-2 border border-slate-200 rounded-lg text-xs bg-white">
+                                    <script>["07:00","08:00","09:00","10:00","11:00","12:00","15:00","17:00","18:00","19:00","21:00"].forEach(t => document.write(`<option value="${t}" ${t==="09:00"?'selected':''}>${t}</option>`));</script>
+                                </select>
+                                <span class="text-xs text-slate-400">-</span>
+                                <select id="nuevaPracticaEnd" class="w-full px-2 py-2 border border-slate-200 rounded-lg text-xs bg-white">
+                                    <script>["09:00","10:00","11:00","12:00","13:00","18:00","19:00","20:00","21:00","22:00"].forEach(t => document.write(`<option value="${t}" ${t==="11:00"?'selected':''}>${t}</option>`));</script>
+                                </select>
+                            </div>
+                            <input type="text" id="nuevaPracticaTemas" placeholder="Assigned units or details..." class="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white" value="ANALYSIS, LINGUISTICS & WRITING">
+                        </div>
+                        <button onclick="agregarPractica()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg text-sm transition shadow-sm">Add Practical Case</button>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-slate-900">Practicals Management Table</h3>
+                    <div class="flex items-center space-x-2 text-sm">
+                        <label for="ordenarPor" class="font-medium text-slate-600">Sort by:</label>
+                        <select id="ordenarPor" onchange="renderizarPracticas()" class="px-3 py-1.5 border border-slate-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="seleccion">Selection (Number & Type)</option>
+                            <option value="deadline">Deadline (Date)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                                <th class="p-3">Block</th>
+                                <th class="p-3">Selection</th>
+                                <th class="p-3">Start & End Time</th>
+                                <th class="p-3">Assigned Units / Details</th>
+                                <th class="p-3">Deadline Date</th>
+                                <th class="p-3 text-center">Done</th>
+                                <th class="p-3 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaPracticasBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- DAILY PLAN TAB -->
+        <div id="tab-daily" class="tab-content space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Daily Study Plan & Tasks</h2>
+                        <p class="text-sm text-slate-500">Manage daily time blocks, specific study goals, spaced repetition reviews, and task statuses synchronized with your weekly schedule.</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-3 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200 items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <label for="daily-filter-mode" class="text-xs font-semibold text-slate-600">Filter Range / Date:</label>
+                        <select id="daily-filter-mode" onchange="renderDailyPlan()" class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm bg-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="date" selected>Concrete Date</option>
+                            <option value="week">Current Week</option>
+                            <option value="all">Show All</option>
+                        </select>
+                        <input type="date" id="daily-date-filter" onchange="renderDailyPlan()" class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button onclick="document.getElementById('daily-date-filter').value = new Date().toISOString().split('T')[0]; document.getElementById('daily-filter-mode').value='date'; renderDailyPlan();" class="text-xs text-indigo-600 hover:underline">Today</button>
+                    </div>
+                    <div class="text-xs font-semibold text-slate-500" id="daily-stats-summary">
+                        Completed: 0 / 0 tasks
+                    </div>
+                </div>
+
+                <div class="table-container overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                                <th class="p-3">Date</th>
+                                <th class="p-3">Start & End Time</th>
+                                <th class="p-3">Block / Subject</th>
+                                <th class="p-3">Daily Objective / Task Description</th>
+                                <th class="p-3 text-center">Done</th>
+                                <th class="p-3 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaDailyBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- WEEKLY SCHEDULE & TRACKER TAB -->
+        <div id="tab-schedule" class="tab-content space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+                
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Weekly Study Schedule</h2>
+                        <p class="text-xs text-slate-500">Plan your time slots with concrete dates and check 'Done' to record study hours instantly.</p>
+                    </div>
+                    
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-1.5 bg-slate-50 px-3 py-1.5 rounded-2xl border border-slate-200">
+                            <label for="week-selector" class="text-[10px] uppercase tracking-wider font-extrabold text-slate-400">Week:</label>
+                            <select id="week-selector" onchange="renderTracker()" class="text-xs font-semibold bg-transparent focus:outline-none text-indigo-700">
+                                <option value="all">All Weeks</option>
+                            </select>
+                        </div>
+
+                        <!-- Compact Top-Right Metrics Box -->
+                        <div class="bg-white px-3.5 py-1.5 rounded-2xl border border-slate-200 flex items-center space-x-3 shadow-2xs">
+                            <div class="text-right">
+                                <span class="text-[8px] uppercase tracking-wider font-extrabold text-slate-400 block">Total Hours</span>
+                                <span id="tracker-total-hours" class="font-extrabold text-indigo-600 text-base">0.0 h</span>
+                            </div>
+                            <div class="border-l border-slate-200 pl-3 text-right">
+                                <span class="text-[8px] uppercase tracking-wider font-extrabold text-slate-400 block">Sessions</span>
+                                <span id="tracker-total-sessions" class="font-extrabold text-slate-900 text-base">0</span>
+                            </div>
+                        </div>
+                        <button onclick="openLogModal()" class="inline-flex items-center px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition">
+                            <i class="fa-solid fa-plus mr-1"></i> Log Session
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <span class="text-xs font-semibold text-slate-600">Configure time slots & check 'Done' to log hours:</span>
+                    <button onclick="addWeeklySlot()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-xs transition">
+                        + Add Schedule Row
+                    </button>
+                </div>
+
+                <div id="weekly-schedule-container" class="space-y-6 mb-8"></div>
+
+                <div class="mt-8 pt-6 border-t border-slate-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-list mr-2 text-indigo-600"></i>Logged Study Sessions History</h3>
+                        <span class="text-xs text-slate-400">Click restore to undo completion or delete to remove log</span>
+                    </div>
+                    <div id="logs-list-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- BLOCK DETAILS MODAL -->
+    <div id="block-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <div>
+                    <h3 id="block-modal-title" class="text-lg font-bold text-slate-900">Block Units</h3>
+                    <p class="text-xs text-slate-500">List of syllabus units included in this block</p>
+                </div>
+                <button onclick="closeBlockModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+            </div>
+            <div id="block-modal-units-list" class="overflow-y-auto space-y-2 flex-1 pr-2"></div>
+            <div class="pt-4 border-t mt-4 flex justify-end">
+                <button onclick="closeBlockModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOG STUDY SESSION MODAL -->
+    <div id="log-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-slate-900">Log Study Session</h3>
+                <button onclick="closeLogModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            <form onsubmit="handleLogSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
+                    <input type="date" id="log-date" required class="w-full p-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Block / Subject</label>
+                    <select id="log-block" required class="w-full p-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="Syllabus">Syllabus</option>
+                        <option value="Practical">Practical</option>
+                        <option value="Teaching Units">Teaching Units</option>
+                        <option value="Oral Defence">Oral Defence</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Duration (Minutes)</label>
+                    <input type="number" id="log-minutes" min="15" step="15" value="60" required class="w-full p-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Notes / Units Covered</label>
+                    <input type="text" id="log-notes" placeholder="e.g. Studied units 1 to 3" class="w-full p-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeLogModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm">Save Log</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modelDescriptions = {
+            "A": "ANALYSIS, LINGUISTICS & WRITING",
+            "B": "ADVANCED GRAMMAR & VOCABULARY",
+            "C": "READING & CONTEXTUAL LANGUAGE"
+        };
+
+        function onNewPracticalTypeChange(typeVal) {
+            const descInput = document.getElementById('nuevaPracticaTemas');
+            if(descInput) {
+                descInput.value = modelDescriptions[typeVal] || "";
+            }
+        }
+
+        function formatDateDDMMYY(dateStr) {
+            if(!dateStr) return "";
+            const parts = dateStr.split('-');
+            if(parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0].slice(-2)}`;
+            }
+            return dateStr;
+        }
+
+        const blockColors = {
+            "METHODOLOGY": { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", badge: "bg-purple-100 text-purple-800" },
+            "COMMUNICATION": { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", badge: "bg-blue-100 text-blue-800" },
+            "PHONETICS & PHONOLOGY": { bg: "bg-rose-50", text: "text-rose-700", border: "border-rose-200", badge: "bg-rose-100 text-rose-800" },
+            "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES": { bg: "bg-pink-50", text: "text-pink-700", border: "border-pink-200", badge: "bg-pink-100 text-pink-800" },
+            "TEXT ANALYSIS & DISCOURSE ANALYSIS": { bg: "bg-red-50", text: "text-red-700", border: "border-red-200", badge: "bg-red-100 text-red-800" },
+            "GREAT BRITAIN": { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", badge: "bg-emerald-100 text-emerald-800" },
+            "THE UNITED STATES": { bg: "bg-lime-50", text: "text-lime-700", border: "border-lime-200", badge: "bg-lime-100 text-lime-800" },
+            "SOCIETY & CULTURE": { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", badge: "bg-amber-100 text-amber-800" },
+            "Syllabus": { bg: "bg-indigo-50", text: "text-indigo-700", border: "border-indigo-200", badge: "bg-indigo-100 text-indigo-800" },
+            "Practical": { bg: "bg-violet-50", text: "text-violet-700", border: "border-violet-200", badge: "bg-violet-100 text-violet-800" },
+            "Teaching Units": { bg: "bg-fuchsia-50", text: "text-fuchsia-700", border: "border-fuchsia-200", badge: "bg-fuchsia-100 text-fuchsia-800" },
+            "Oral Defence": { bg: "bg-teal-50", text: "text-teal-700", border: "border-teal-200", badge: "bg-teal-100 text-teal-800" }
+        };
+
+        const availableTimes = [
+            "07:00", "07:30", "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
+            "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
+            "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30",
+            "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"
+        ];
+
+        const scheduleBlocks = ["Syllabus", "Practical", "Teaching Units", "Oral Defence"];
+
+        const temarioCompleto = [
+            { id: 1, block: "METHODOLOGY", ref: "UNIT 1", nombre: "1. Evolution of language teaching methodology. Current trends in EFL methodology. Communicative approaches.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 2, block: "METHODOLOGY", ref: "UNIT 2", nombre: "2. General theories on foreign language learning and acquisition. The concept of interlanguage. Error treatment.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 3, block: "COMMUNICATION", ref: "UNIT 3", nombre: "3. The communication process. Language functions. Language in use. Negotiation of meaning.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 4, block: "COMMUNICATION", ref: "UNIT 4", nombre: "4. Communicative competence. Analysis of its components.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 5, block: "COMMUNICATION", ref: "UNIT 5", nombre: "5. Oral communication. Elements and rules governing oral discourse. Routines, formulas and strategies.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 6, block: "COMMUNICATION", ref: "UNIT 6", nombre: "6. Written communication. Different types of written texts. Structure, formal elements and rules.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 7, block: "PHONETICS & PHONOLOGY", ref: "UNIT 7", nombre: "7. English phonological system I: vowels, phonetic symbols, strong and weak forms, diphthongs.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 8, block: "PHONETICS & PHONOLOGY", ref: "UNIT 8", nombre: "8. English phonological system II: consonants and contrast with official language(s).", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 9, block: "PHONETICS & PHONOLOGY", ref: "UNIT 9", nombre: "9. English phonological system III: stress, rhythm and intonation.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 10, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 10", nombre: "10. Lexicon. Characteristics of word formation in English: prefixation, suffixation and compounding.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 11, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 11", nombre: "11. The word as a linguistic sign. Homonymy, synonymy, antonymy, false friends and lexical creativity.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 12, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 12", nombre: "12. Concept of grammar: Reflection on language and learning. From normative grammar to grammar in use.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 13, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 13", nombre: "13. Expression of quantity.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 14, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 14", nombre: "14. Expression of quality, degree and comparison.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 15, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 15", nombre: "15. Expression of manner, means and instrument.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 16, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 16", nombre: "16. Expression of possession.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 17, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 17", nombre: "17. Location in space: place, direction and distance.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 18, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 18", nombre: "18. Location in time: temporal relations and frequency.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 19, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 19", nombre: "19. Real time and verbal tense. Aspect and mood.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 20, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 20", nombre: "20. Auxiliary and modal verbs: forms and functions.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 21, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 21", nombre: "21. The infinitive and the -ing form: uses.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 22, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 22", nombre: "22. Multi-word verbs.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 23, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 23", nombre: "23. Sentence structure in English: affirmative, interrogative, negative and exclamatory.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 24, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 24", nombre: "24. Expression of assertion, emphasis and objection.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 25, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 25", nombre: "25. Relations of cause, consequence and purpose.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 26, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 26", nombre: "26. Expression of doubt, condition, hypothesis and contrast.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 27, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 27", nombre: "27. The passive voice.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 28, block: "COMMUNICATION", ref: "UNIT 28", nombre: "28. Macrofunctions for habitual communicative intentions: social relations, information, attitudes.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 29, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 29", nombre: "29. Discourse analysis and articulation. Cohesion and coherence. Anaphora, cataphora, connectors, deixis.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 30, block: "LEXICON & SYNTACTIC-DISCURSIVE STRUCTURES", ref: "UNIT 30", nombre: "30. Direct and indirect speech.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 31, block: "TEXT ANALYSIS & DISCOURSE ANALYSIS", ref: "UNIT 31", nombre: "31. Text and context. Text types and classification criteria. Register.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 32, block: "TEXT ANALYSIS & DISCOURSE ANALYSIS", ref: "UNIT 32", nombre: "32. The narrative text. Structure and characteristics.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 33, block: "TEXT ANALYSIS & DISCOURSE ANALYSIS", ref: "UNIT 33", nombre: "33. The descriptive text. Structure and characteristics.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 34, block: "TEXT ANALYSIS & DISCOURSE ANALYSIS", ref: "UNIT 34", nombre: "34. The argumentative text. Structure and characteristics.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 35, block: "TEXT ANALYSIS & DISCOURSE ANALYSIS", ref: "UNIT 35", nombre: "35. The expository text. Structure and characteristics.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 36, block: "TEXT ANALYSIS & DISCOURSE ANALYSIS", ref: "UNIT 36", nombre: "36. Dialogic texts. Structure and characteristics.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 37, block: "TEXT ANALYSIS & DISCOURSE ANALYSIS", ref: "UNIT 37", nombre: "37. Literary language. Literary genres and literary criticism.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 38, block: "TEXT ANALYSIS & DISCOURSE ANALYSIS", ref: "UNIT 38", nombre: "38. Scientific, technological, commercial and administrative English.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 39, block: "TEXT ANALYSIS & DISCOURSE ANALYSIS", ref: "UNIT 39", nombre: "39. Text analysis strategies.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 40, block: "COMMUNICATION", ref: "UNIT 40", nombre: "40. Communication strategies. Definition and typology.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 41, block: "GREAT BRITAIN", ref: "UNIT 41", nombre: "41. Romanization. Latin influence on the English language. Loanwords and calques.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 42, block: "GREAT BRITAIN", ref: "UNIT 42", nombre: "42. The Norman Conquest. French influence on the English language. Loanwords and calques.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 43, block: "GREAT BRITAIN", ref: "UNIT 43", nombre: "43. Medieval oral transmission literature: The Arthurian Legend. G. Chaucer: The Canterbury Tales.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 44, block: "GREAT BRITAIN", ref: "UNIT 44", nombre: "44. Shakespeare and his times. Most representative works.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 45, block: "GREAT BRITAIN", ref: "UNIT 45", nombre: "45. 18th-century Great Britain: Socio-economic development and political articulation. Major novelists.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 46, block: "THE UNITED STATES", ref: "UNIT 46", nombre: "46. Historical configuration of the USA: From the War of Independence to the Civil War. Reference novels.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 47, block: "GREAT BRITAIN", ref: "UNIT 47", nombre: "47. The English Industrial Revolution. Social and political changes through literature: C. Dickens.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 48, block: "GREAT BRITAIN", ref: "UNIT 48", nombre: "48. Romanticism in Great Britain. Novel and poetry.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 49, block: "GREAT BRITAIN", ref: "UNIT 49", nombre: "49. Construction and administration of the British colonial empire (18th-19th centuries). J. Conrad and R. Kipling.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 50, block: "GREAT BRITAIN", ref: "UNIT 50", nombre: "50. The Victorian novel.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 51, block: "GREAT BRITAIN", ref: "UNIT 51", nombre: "51. Oscar Wilde and Bernard Shaw.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 52, block: "THE UNITED STATES", ref: "UNIT 52", nombre: "52. Historical evolution of the USA: From A. Lincoln to F.D. Roosevelt.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 53, block: "THE UNITED STATES", ref: "UNIT 53", nombre: "53. The novel, short story and poetry in the USA: H. Melville, E.A. Poe and W. Whitman.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 54, block: "THE UNITED STATES", ref: "UNIT 54", nombre: "54. Humorism: M. Twain. H. James and cosmopolitanism.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 55, block: "THE UNITED STATES", ref: "UNIT 55", nombre: "55. The Lost Generation: F. Fitzgerald, J. Steinbeck and E. Hemingway. W. Faulkner.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 56, block: "GREAT BRITAIN", ref: "UNIT 56", nombre: "56. Historical relations between Ireland and Great Britain. Irish authors: S. O’Casey and J. Joyce.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 57, block: "GREAT BRITAIN", ref: "UNIT 57", nombre: "57. The UK in the interwar period and during WWII. Representative literary authors.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 58, block: "GREAT BRITAIN", ref: "UNIT 58", nombre: "58. Political, social and economic evolution of the UK and Ireland since 1945. European presence. Literary panorama.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 59, block: "THE UNITED STATES", ref: "UNIT 59", nombre: "59. Political, social and economic evolution of the USA since 1945. International significance and current literary panorama.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 60, block: "THE UNITED STATES", ref: "UNIT 60", nombre: "60. American hardboiled novel: D. Hammett and R. Chandler. English detective novel: P.D. James.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 61, block: "SOCIETY & CULTURE", ref: "UNIT 61", nombre: "61. The impact of cinema on the dissemination of English-language literary production.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 62, block: "GREAT BRITAIN", ref: "UNIT 62", nombre: "62. The Commonwealth. Cultural diversity and linguistic varieties. E.M. Forster, D. Lessing and N. Gordimer.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 63, block: "GREAT BRITAIN", ref: "UNIT 63", nombre: "63. British institutions. Parliamentary chambers, Government, political parties, electoral system and Crown.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 64, block: "THE UNITED STATES", ref: "UNIT 64", nombre: "64. US institutions. The Constitution, territorial organization, President, Congress, political parties and electoral system.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 65, block: "SOCIETY & CULTURE", ref: "UNIT 65", nombre: "65. The educational system in the Anglo-Saxon world.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 66, block: "SOCIETY & CULTURE", ref: "UNIT 66", nombre: "66. Cultural dimension of English in the world today. British vs. American English. Anglicisms in Spain.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 67, block: "SOCIETY & CULTURE", ref: "UNIT 67", nombre: "67. Mass media in English (1): Journalistic style. Press: quality and tabloid newspapers.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 68, block: "SOCIETY & CULTURE", ref: "UNIT 68", nombre: "68. Mass media in English (2): Radio and television. Advertising in English-speaking cultures.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" },
+            { id: 69, block: "SOCIETY & CULTURE", ref: "UNIT 69", nombre: "69. Society and culture. Stereotypes and emblems of English-speaking countries. Songs as cultural vehicles.", fecha: "", read: false, sumup: false, level: "Moderate", repStage: 0, nextSp: "Pending" }
+        ];
+
+        let temas = JSON.parse(localStorage.getItem('opos_temario_v17')) || temarioCompleto;
+        let bloquesPracticas = JSON.parse(localStorage.getItem('opos_bloques_v17')) || ["Block 1", "Block 2", "Block 3", "Block 4"];
+        let practicas = JSON.parse(localStorage.getItem('opos_practicas_v17')) || [
+            { id: 1, bloque: "Block 1", num: "1", tipo: "A", temas: "ANALYSIS, LINGUISTICS & WRITING", fecha: "2026-10-05", startTime: "16:30", endTime: "17:30", done: false },
+            { id: 2, bloque: "Block 1", num: "1", tipo: "B", temas: "ADVANCED GRAMMAR & VOCABULARY", fecha: "2026-10-14", startTime: "09:00", endTime: "11:00", done: false },
+            { id: 3, bloque: "Block 1", num: "1", tipo: "C", temas: "READING & CONTEXTUAL LANGUAGE", fecha: "2026-10-21", startTime: "09:00", endTime: "11:00", done: false },
+            { id: 4, bloque: "Block 1", num: "2", tipo: "A", temas: "ANALYSIS, LINGUISTICS & WRITING", fecha: "2026-10-28", startTime: "09:00", endTime: "11:00", done: false },
+            { id: 5, bloque: "Block 1", num: "2", tipo: "B", temas: "ADVANCED GRAMMAR & VOCABULARY", fecha: "2026-11-04", startTime: "09:00", endTime: "11:00", done: false }
+        ];
+        let weeklySchedule = JSON.parse(localStorage.getItem('opos_weekly_schedule_v17')) || [
+            { id: 1, date: "2026-10-02", startTime: "08:00", endTime: "10:00", block: "Syllabus", description: "Studying", done: false }
+        ];
+        let logs = JSON.parse(localStorage.getItem('opos_logs_v17')) || [];
+        let quickNotes = localStorage.getItem('opos_notes_v17') || "Key articles for Oposiciones defense: LOMLOE, Royal Decree on Curriculum for Secondary Education.";
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-indigo-600', 'text-indigo-600');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            });
+            document.getElementById('tab-' + tabId).classList.add('active');
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if(activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-slate-500');
+                activeBtn.classList.add('border-indigo-600', 'text-indigo-600');
+            }
+            if(tabId === 'dashboard') renderDashboard();
+            if(tabId === 'temario') renderizarTemas();
+            if(tabId === 'practicas') { renderizarBloquesUI(); renderizarPracticas(); }
+            if(tabId === 'daily') renderDailyPlan();
+            if(tabId === 'schedule') renderTracker();
+        }
+
+        window.onload = function() {
+            document.getElementById('quick-notes').value = quickNotes;
+            renderDashboard();
+            renderizarTemas();
+            renderizarBloquesUI();
+            renderizarPracticas();
+            renderDailyPlan();
+            renderTracker();
+        }
+
+        let syncTimeout = null;
+
+        function saveAll(sync = true) {
+            // 1. Always save instantly to localStorage for immediate UI persistence
+            localStorage.setItem('opos_temario_v17', JSON.stringify(temas));
+            localStorage.setItem('opos_bloques_v17', JSON.stringify(bloquesPracticas));
+            localStorage.setItem('opos_practicas_v17', JSON.stringify(practicas));
+            localStorage.setItem('opos_weekly_schedule_v17', JSON.stringify(weeklySchedule));
+            localStorage.setItem('opos_logs_v17', JSON.stringify(logs));
+            localStorage.setItem('opos_notes_v17', quickNotes);
+
+            renderDashboard();
+
+            // 2. Debounce cloud sync so it doesn't lag user interactions
+            if (sync && window.db) {
+                const badge = document.getElementById('syncStatus');
+                if(badge) badge.innerText = "⏳ Pending Sync...";
+                
+                clearTimeout(syncTimeout);
+                syncTimeout = setTimeout(() => {
+                    syncToCloud(false);
+                }, 1500); // Waits 1.5 seconds after your last change before uploading to Firebase
+            }
+        }
+
+       async function syncToCloud(manual = false) {
+            if(!window.db) return;
+            const badge = document.getElementById('syncStatus');
+            if(badge) badge.innerText = "⏳ Saving...";
+            
+            try {
+                const dbRef = window.rtdbRef(window.db, 'english_opos_data/user_main');
+                
+                // Add a 5-second timeout promise so it never gets stuck forever if the network drops
+                const savePromise = window.rtdbSet(dbRef, { 
+                    temas, bloquesPracticas, practicas, weeklySchedule, logs, quickNotes, updatedAt: new Date().toISOString() 
+                });
+                
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Sync timeout')), 5000)
+                );
+
+                await Promise.race([savePromise, timeoutPromise]);
+
+                if(badge) badge.innerText = "☁ Synchronized";
+                if(manual) alert("Data successfully synchronized to the cloud!");
+            } catch(e) {
+                console.error("Cloud sync error:", e);
+                if(badge) badge.innerText = "⚠️ Sync Error";
+                if(manual) alert("Error syncing to cloud. Check connection.");
+            }
+        }
+
+        async function loadFromCloud() {
+            if(!window.db) return;
+            try {
+                const dbRef = window.rtdbRef(window.db);
+                const snapshot = await window.rtdbGet(window.rtdbChild(dbRef, 'english_opos_data/user_main'));
+                if(snapshot.exists()) {
+                    const data = snapshot.val();
+                    if(data.temas) temas = data.temas;
+                    if(data.bloquesPracticas) bloquesPracticas = data.bloquesPracticas;
+                    if(data.practicas) practicas = data.practicas;
+                    if(data.weeklySchedule) weeklySchedule = data.weeklySchedule;
+                    if(data.logs) logs = data.logs;
+                    if(data.quickNotes) { quickNotes = data.quickNotes; document.getElementById('quick-notes').value = quickNotes; }
+                    saveAll(false);
+                }
+            } catch(e) { console.error("Error loading cloud data:", e); }
+        }
+
+        window.addEventListener('firebase-ready', async () => {
+            await loadFromCloud();
+            renderDashboard();
+        });
+
+        function getUnifiedTasksForDate(targetDateStr) {
+            let tasks = [];
+            weeklySchedule.forEach(s => {
+                if(s.date === targetDateStr) tasks.push({ ...s, source: 'schedule', rawId: s.id });
+            });
+            practicas.forEach(p => {
+                if(p.fecha === targetDateStr && !p.done) {
+                    tasks.push({ block: 'Practical', description: `Practical Case ${p.num}${p.tipo}: ${p.temas || 'Review'}`, done: p.done, source: 'practical', rawId: p.id, startTime: p.startTime || "09:00", endTime: p.endTime || "11:00" });
+                }
+            });
+            temas.forEach(t => {
+                if(t.nextSp && t.nextSp !== "Pending" && t.nextSp !== "Mastered!") {
+                    const dateMatch = t.nextSp.match(/^\d{4}-\d{2}-\d{2}/);
+                    if(dateMatch && dateMatch[0] === targetDateStr) {
+                        tasks.push({ block: 'Syllabus', description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`, done: t.repCompleted || false, source: 'repetition', rawId: t.id, startTime: t.startTime || "10:00", endTime: t.endTime || "11:00" });
+                    }
+                }
+            });
+            tasks.sort((a,b) => (a.startTime || "00:00").localeCompare(b.startTime || "00:00"));
+            return tasks;
+        }
+
+        function toggleDashboardTaskDone(source, rawId, isChecked) {
+            if(source === 'schedule') {
+                toggleWeeklyDone(rawId, isChecked);
+            } else if(source === 'practical') {
+                togglePracticalDone(rawId, isChecked);
+            } else if(source === 'repetition') {
+                toggleRepDone(rawId, isChecked);
+            }
+            renderDashboard();
+        }
+
+        function renderDashboard() {
+            const studied = temas.filter(t => t.read || t.sumup || t.repStage > 0).length;
+            
+            // Calculate blocks and total syllabus progress precisely according to user rule:
+            // Each block has 100% shared equally among its topics.
+            // Main syllabus progress is the average of all block percentages.
+            const blocksMap = {};
+            temas.forEach(t => {
+                if(!blocksMap[t.block]) blocksMap[t.block] = { totalUnits: 0, blockUnitsScoreSum: 0 };
+                blocksMap[t.block].totalUnits++;
+                let pts = (t.read ? 1 : 0) + (t.sumup ? 1 : 0) + Math.min(4, t.repStage || 0);
+                let uFrac = pts / 6; // 0 to 1 fraction per unit
+                blocksMap[t.block].blockUnitsScoreSum += uFrac;
+            });
+
+            let sumOfBlockPercentages = 0;
+            const blockNames = Object.keys(blocksMap);
+            blockNames.forEach(b => {
+                let info = blocksMap[b];
+                let blockPct = info.totalUnits > 0 ? Math.round((info.blockUnitsScoreSum / info.totalUnits) * 100) : 0;
+                blocksMap[b].computedPct = blockPct;
+                sumOfBlockPercentages += blockPct;
+            });
+
+            const overallPct = blockNames.length > 0 ? Math.round(sumOfBlockPercentages / blockNames.length) : 0;
+
+            const totalMins = logs.reduce((acc, curr) => acc + curr.minutes, 0);
+            const totalHours = (totalMins / 60).toFixed(1);
+
+            document.getElementById('stat-units-studied').innerText = `${studied} / ${temas.length}`;
+            document.getElementById('stat-syllabus-progress').innerText = `${overallPct}%`;
+            
+            const completedPracticalsCount = practicas.filter(p => p.done).length;
+            document.getElementById('stat-practicals-count').innerText = completedPracticalsCount;
+            
+            document.getElementById('stat-study-hours').innerText = `${totalHours}h`;
+
+            const grid = document.getElementById('dashboard-blocks-grid');
+            grid.innerHTML = blockNames.map(b => {
+                const info = blocksMap[b];
+                const col = blockColors[b] || { bg: "bg-slate-50", text: "text-slate-700", border: "border-slate-200", badge: "bg-slate-100 text-slate-700" };
+                return `
+                    <div onclick="openBlockModal('${b}')" class="p-3.5 rounded-xl border ${col.border} ${col.bg} flex justify-between items-center cursor-pointer hover:shadow-sm transition group">
+                        <div>
+                            <h4 class="font-semibold ${col.text} text-xs">${b}</h4>
+                            <p class="text-xs text-slate-500">${info.totalUnits} units <span class="text-indigo-500 text-[10px] ml-1">(Click to view)</span></p>
+                        </div>
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-lg ${col.badge}">${info.computedPct}%</span>
+                    </div>
+                `;
+            }).join('');
+
+            const activePracticals = practicas.filter(p => !p.done).sort((a,b) => {
+                if(!a.fecha) return 1;
+                if(!b.fecha) return -1;
+                let dateDiff = new Date(a.fecha) - new Date(b.fecha);
+                if(dateDiff !== 0) return dateDiff;
+                return (a.startTime || "00:00").localeCompare(b.startTime || "00:00");
+            }).slice(0, 4);
+
+            const upList = document.getElementById('dashboard-upcoming-practicals');
+            if(activePracticals.length === 0) {
+                upList.innerHTML = `<p class="text-sm text-slate-400 text-center py-4">No upcoming practical cases scheduled.</p>`;
+            } else {
+                upList.innerHTML = activePracticals.map(p => `
+                    <div class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:bg-slate-50 transition text-sm">
+                        <div>
+                            <span class="font-bold text-indigo-600 mr-2">Case ${p.num}${p.tipo} (${p.bloque})</span>
+                            <span class="text-slate-600">${p.temas || 'No details specified'}</span>
+                        </div>
+                        <span class="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full whitespace-nowrap"><i class="fa-regular fa-calendar mr-1"></i>${formatDateDDMMYY(p.fecha) || 'No date'}</span>
+                    </div>
+                `).join('');
+            }
+
+            const previewContainer = document.getElementById('dashboard-daily-preview');
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todayTasks = getUnifiedTasksForDate(todayStr);
+
+            if(todayTasks.length === 0) {
+                previewContainer.innerHTML = `<p class="text-xs text-slate-400 py-3 text-center">No tasks scheduled for today (${formatDateDDMMYY(todayStr)}).</p>`;
+            } else {
+                previewContainer.innerHTML = todayTasks.map(t => `
+                    <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs">
+                        <div class="flex items-center space-x-2.5 pr-2">
+                            <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleDashboardTaskDone('${t.source}', ${t.rawId}, this.checked)" class="w-4 h-4 text-indigo-600 rounded cursor-pointer">
+                            <div>
+                                <span class="font-bold text-indigo-600 mr-1">[${t.block}]</span>
+                                <span class="text-slate-800">${t.description}</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${t.done ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${t.done ? 'Done' : 'Pending'}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function openBlockModal(blockName) {
+            const modal = document.getElementById('block-modal');
+            const title = document.getElementById('block-modal-title');
+            const list = document.getElementById('block-modal-units-list');
+
+            title.innerText = `Block: ${blockName}`;
+            const blockUnits = temas.filter(t => t.block === blockName);
+
+            list.innerHTML = blockUnits.map(u => {
+                let pts = (u.read ? 1 : 0) + (u.sumup ? 1 : 0) + Math.min(4, u.repStage);
+                let pPct = Math.min(100, Math.round((pts / 6) * 100));
+                let badgeText = `${pPct}%`;
+                let badgeClass = pPct === 100 ? 'bg-emerald-100 text-emerald-800' : (pPct > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-600');
+                return `
+                    <div class="p-3 rounded-xl border border-slate-100 bg-slate-50/60 flex items-center justify-between text-sm">
+                        <div class="pr-4">
+                            <span class="font-bold text-indigo-600 mr-2">${u.ref}</span>
+                            <span class="text-slate-800">${u.nombre}</span>
+                        </div>
+                        <span class="text-xs px-2.5 py-1 rounded-full font-semibold whitespace-nowrap ${badgeClass}">
+                            ${badgeText}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeBlockModal() {
+            document.getElementById('block-modal').classList.add('hidden');
+        }
+
+        function saveQuickNotes() {
+            quickNotes = document.getElementById('quick-notes').value;
+            saveAll(true);
+        }
+
+        function actualizarCampo(id, campo, valor) {
+            const tema = temas.find(t => t.id === id);
+            if(!tema) return;
+            tema[campo] = valor;
+            if(campo === 'fecha' && valor && (tema.repStage === 0 || !tema.repStage)) {
+                tema.repStage = 1;
+                calcularSiguienteRepeticion(tema);
+            }
+            saveAll(true);
+            renderizarTemas();
+        }
+
+        function registrarRepaso(id) {
+            const tema = temas.find(t => t.id === id);
+            if(!tema || !tema.fecha) {
+                alert("Please enter the initial study date first.");
+                return;
+            }
+            tema.repStage = (tema.repStage || 1) + 1;
+            calcularSiguienteRepeticion(tema);
+            saveAll(true);
+            renderizarTemas();
+        }
+
+        function calcularSiguienteRepeticion(tema) {
+            let baseDate = new Date(tema.fecha || new Date());
+            const intervalos = [1, 3, 7, 15, 30, 60, 90];
+            const currentStage = tema.repStage || 1;
+            let dias = intervalos[currentStage - 1] || 120;
+            if(tema.level === 'Difficult') dias = Math.max(1, Math.floor(dias * 0.5));
+            if(tema.level === 'Easy') dias = Math.floor(dias * 1.5);
+            baseDate.setDate(baseDate.getDate() + dias);
+            tema.nextSp = currentStage <= 6 ? `${baseDate.toISOString().split('T')[0]} [Rep ${currentStage}]` : "Mastered!";
+        }
+
+        function limpiarTema(id) {
+            const tema = temas.find(t => t.id === id);
+            if(!tema) return;
+            tema.fecha = ""; tema.read = false; tema.sumup = false; tema.repStage = 0; tema.nextSp = "Pending";
+            saveAll(true);
+            renderizarTemas();
+        }
+
+        function renderizarTemas() {
+            const tbody = document.getElementById('listaTemasBody');
+            const filtroBloque = document.getElementById('filtroBloque').value;
+            const textoBusqueda = document.getElementById('buscador').value.toLowerCase();
+            tbody.innerHTML = '';
+
+            let filtered = temas.filter(tema => {
+                const matchBlock = (filtroBloque === 'todos' || tema.block === filtroBloque);
+                const matchText = tema.nombre.toLowerCase().includes(textoBusqueda) || tema.ref.toLowerCase().includes(textoBusqueda);
+                return matchBlock && matchText;
+            });
+
+            document.getElementById('contadorTemas').innerText = `Showing ${filtered.length} units`;
+
+            filtered.forEach(tema => {
+                const tr = document.createElement('tr');
+                let puntos = (tema.read ? 1 : 0) + (tema.sumup ? 1 : 0) + Math.min(4, tema.repStage || 0);
+                let porcentaje = Math.min(100, Math.round((puntos / 6) * 100));
+                const col = blockColors[tema.block] || { badge: "bg-slate-100 text-slate-700" };
+
+                tr.innerHTML = `
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-md ${col.badge} font-semibold text-[11px]">${tema.block}</span></td>
+                    <td class="p-3 font-medium text-slate-900"><strong class="text-indigo-600">${tema.ref}</strong> ${tema.nombre}</td>
+                    <td class="p-3"><input type="date" value="${tema.fecha || ''}" onchange="actualizarCampo(${tema.id}, 'fecha', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white"></td>
+                    <td class="p-3 text-center"><input type="checkbox" ${tema.read ? 'checked' : ''} onchange="actualizarCampo(${tema.id}, 'read', this.checked)" class="w-4 h-4 text-indigo-600 rounded cursor-pointer"></td>
+                    <td class="p-3 text-center"><input type="checkbox" ${tema.sumup ? 'checked' : ''} onchange="actualizarCampo(${tema.id}, 'sumup', this.checked)" class="w-4 h-4 text-indigo-600 rounded cursor-pointer"></td>
+                    <td class="p-3">
+                        <span class="text-xs font-bold text-indigo-600">${tema.nextSp.replace(/^\d{4}-\d{2}-\d{2}/, m => formatDateDDMMYY(m))}</span>
+                        ${tema.nextSp !== "Mastered!" ? `<button class="ml-2 px-2 py-0.5 bg-emerald-600 text-white rounded text-xs font-bold hover:bg-emerald-700" onclick="registrarRepaso(${tema.id})">+Rep</button>` : ''}
+                    </td>
+                    <td class="p-3">
+                        <select onchange="actualizarCampo(${tema.id}, 'level', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white font-medium">
+                            <option value="Easy" ${tema.level === 'Easy' ? 'selected' : ''}>Easy</option>
+                            <option value="Moderate" ${tema.level === 'Moderate' ? 'selected' : ''}>Mod</option>
+                            <option value="Difficult" ${tema.level === 'Difficult' ? 'selected' : ''}>Diff</option>
+                        </select>
+                    </td>
+                    <td class="p-3">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-16 bg-slate-200 rounded-full h-2 overflow-hidden"><div class="bg-emerald-500 h-full" style="width: ${porcentaje}%"></div></div>
+                            <span class="text-xs font-bold text-slate-700">${porcentaje}%</span>
+                        </div>
+                    </td>
+                    <td class="p-3 text-center">
+                        <button onclick="limpiarTema(${tema.id})" class="px-2 py-1 bg-rose-100 text-rose-700 rounded hover:bg-rose-200 text-xs font-bold"><i class="fa-solid fa-rotate-left"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function resetAllData() {
+            if(confirm("Are you sure you want to reset all progress data?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function renderizarBloquesUI() {
+            const selectBloque = document.getElementById('nuevaPracticaBloque');
+            selectBloque.innerHTML = '';
+            bloquesPracticas.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b;
+                opt.innerText = b;
+                selectBloque.appendChild(opt);
+            });
+        }
+
+        function agregarBloque() {
+            const nombre = document.getElementById('nuevoNombreBloque').value.trim();
+            if(!nombre) return alert("Please enter a block name.");
+            if(bloquesPracticas.includes(nombre)) return alert("This block already exists.");
+            bloquesPracticas.push(nombre);
+            document.getElementById('nuevoNombreBloque').value = '';
+            saveAll(true);
+            renderizarBloquesUI();
+        }
+
+        function agregarPractica() {
+            const bloque = document.getElementById('nuevaPracticaBloque').value;
+            const num = document.getElementById('nuevaPracticaNum').value;
+            const tipo = document.getElementById('nuevaPracticaTipo').value;
+            const temasAsignados = document.getElementById('nuevaPracticaTemas').value;
+            const fecha = document.getElementById('nuevaPracticaFecha').value;
+            const startTime = document.getElementById('nuevaPracticaStart').value;
+            const endTime = document.getElementById('nuevaPracticaEnd').value;
+
+            practicas.push({ id: Date.now(), bloque, num: parseInt(num), tipo, temas: temasAsignados, fecha, startTime, endTime, done: false });
+            document.getElementById('nuevaPracticaTemas').value = modelDescriptions[document.getElementById('nuevaPracticaTipo').value] || "";
+            document.getElementById('nuevaPracticaFecha').value = '';
+            saveAll(true);
+            renderizarPracticas();
+        }
+
+        function eliminarPractica(id) {
+            practicas = practicas.filter(p => p.id !== id);
+            saveAll(true);
+            renderizarPracticas();
+            renderDashboard();
+        }
+
+        function actualizarFilaPractica(id, campo, val) {
+            const p = practicas.find(item => item.id === id);
+            if(p) {
+                if(campo === 'num') val = parseInt(val);
+                if(campo === 'tipo') {
+                    p.tipo = val;
+                    if(!p.temas || Object.values(modelDescriptions).includes(p.temas)) {
+                        p.temas = modelDescriptions[val] || "";
+                    }
+                } else {
+                    p[campo] = val;
+                }
+                saveAll(true);
+                renderizarPracticas();
+            }
+        }
+
+        function togglePracticalDone(id, isChecked) {
+            const p = practicas.find(item => item.id === id);
+            if(!p) return;
+            p.done = isChecked;
+
+            if(isChecked) {
+                const [startH, startM] = (p.startTime || "09:00").split(':').map(Number);
+                const [endH, endM] = (p.endTime || "11:00").split(':').map(Number);
+                const totalMins = (endH * 60 + endM) - (startH * 60 + startM);
+                const duration = totalMins > 0 ? totalMins : 120;
+
+                logs.push({
+                    id: Date.now() + Math.random(),
+                    date: p.fecha || new Date().toISOString().split('T')[0],
+                    block: "Practical",
+                    minutes: duration,
+                    notes: `Practical Case Completed: Case ${p.num}${p.tipo} (${p.bloque})`,
+                    sourceRef: { type: 'practical', id: p.id }
+                });
+            } else {
+                logs = logs.filter(l => !(l.sourceRef && l.sourceRef.type === 'practical' && l.sourceRef.id === p.id));
+            }
+
+            saveAll(true);
+            renderizarPracticas();
+            renderDailyPlan();
+            renderTracker();
+            renderDashboard();
+        }
+
+        function renderizarPracticas() {
+            const tbody = document.getElementById('listaPracticasBody');
+            const criterioOrden = document.getElementById('ordenarPor').value;
+            tbody.innerHTML = '';
+
+            let sorted = [...practicas];
+            if(criterioOrden === 'deadline') {
+                sorted.sort((a,b) => {
+                    if(!a.fecha) return 1;
+                    if(!b.fecha) return -1;
+                    let dateDiff = new Date(a.fecha) - new Date(b.fecha);
+                    if(dateDiff !== 0) return dateDiff;
+                    return (a.startTime || "00:00").localeCompare(b.startTime || "00:00");
+                });
+            } else {
+                sorted.sort((a,b) => {
+                    if(a.bloque !== b.bloque) return a.bloque.localeCompare(b.bloque);
+                    if(parseInt(a.num) !== parseInt(b.num)) return parseInt(a.num) - parseInt(b.num);
+                    return a.tipo.localeCompare(b.tipo);
+                });
+            }
+
+            const timeOptions = availableTimes.map(t => `<option value="${t}">${t}</option>`).join('');
+
+            sorted.forEach(p => {
+                const tr = document.createElement('tr');
+                let selectBlock = `<select onchange="actualizarFilaPractica(${p.id}, 'bloque', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white font-medium">`;
+                bloquesPracticas.forEach(b => {
+                    selectBlock += `<option value="${b}" ${p.bloque === b ? 'selected' : ''}>${b}</option>`;
+                });
+                selectBlock += `</select>`;
+
+                let selectType = `<select onchange="actualizarFilaPractica(${p.id}, 'tipo', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white font-bold text-indigo-600">
+                    <option value="A" ${p.tipo === 'A' ? 'selected' : ''}>Type A</option>
+                    <option value="B" ${p.tipo === 'B' ? 'selected' : ''}>Type B</option>
+                    <option value="C" ${p.tipo === 'C' ? 'selected' : ''}>Type C</option>
+                </select>`;
+
+                const startSel = `<select onchange="updatePracticalTimeField(${p.id}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${p.startTime || '09:00'}"`, `value="${p.startTime || '09:00'}" selected`)}</select>`;
+                const endSel = `<select onchange="updatePracticalTimeField(${p.id}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${p.endTime || '11:00'}"`, `value="${p.endTime || '11:00'}" selected`)}</select>`;
+
+                tr.innerHTML = `
+                    <td class="p-3">${selectBlock}</td>
+                    <td class="p-3 font-bold text-indigo-600">Case ${p.num}${p.tipo}</td>
+                    <td class="p-3">
+                        <div class="flex items-center space-x-1">
+                            ${startSel}
+                            <span class="text-slate-400">-</span>
+                            ${endSel}
+                        </div>
+                    </td>
+                    <td class="p-3"><input type="text" value="${p.temas || ''}" onchange="actualizarFilaPractica(${p.id}, 'temas', this.value)" class="w-full p-1 border border-slate-200 rounded text-xs bg-white"></td>
+                    <td class="p-3"><input type="date" value="${p.fecha || ''}" onchange="actualizarFilaPractica(${p.id}, 'fecha', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white"></td>
+                    <td class="p-3 text-center">
+                        <input type="checkbox" ${p.done ? 'checked' : ''} onchange="togglePracticalDone(${p.id}, this.checked)" class="w-4 h-4 text-indigo-600 rounded cursor-pointer" title="Mark as done">
+                    </td>
+                    <td class="p-3 text-center">
+                        <button onclick="eliminarPractica(${p.id})" class="px-2 py-1 bg-rose-600 text-white rounded hover:bg-rose-700 text-xs font-bold"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleRepDone(id, isChecked) {
+            const tema = temas.find(t => t.id === id);
+            if(!tema) return;
+            tema.repCompleted = isChecked;
+
+            if(isChecked) {
+                const [startH, startM] = (tema.startTime || "10:00").split(':').map(Number);
+                const [endH, endM] = (tema.endTime || "11:00").split(':').map(Number);
+                const totalMins = (endH * 60 + endM) - (startH * 60 + startM);
+                const duration = totalMins > 0 ? totalMins : 60;
+
+                const currentStage = tema.repStage || 1;
+                tema.prevRepStage = currentStage;
+                if(tema.nextSp) tema.prevNextSp = tema.nextSp;
+
+                logs.push({
+                    id: Date.now() + Math.random(),
+                    date: new Date().toISOString().split('T')[0],
+                    block: "Syllabus",
+                    minutes: duration,
+                    notes: `Spaced Repetition Completed: [Rep ${currentStage}] ${tema.ref} - ${tema.nombre}`,
+                    sourceRef: { type: 'repetition', id: tema.id, previousStage: currentStage, previousNextSp: tema.nextSp }
+                });
+
+                tema.repStage = currentStage + 1;
+                calcularSiguienteRepeticion(tema);
+                tema.repCompleted = false;
+            } else {
+                logs = logs.filter(l => !(l.sourceRef && l.sourceRef.type === 'repetition' && l.sourceRef.id === tema.id));
+            }
+
+            saveAll(true);
+            renderTracker();
+            renderDailyPlan();
+            renderizarTemas();
+            renderDashboard();
+        }
+
+        function restoreLog(logId) {
+            const logIdx = logs.findIndex(l => l.id === logId);
+            if(logIdx === -1) return;
+            const log = logs[logIdx];
+
+            if(log.sourceRef) {
+                if(log.sourceRef.type === 'practical') {
+                    const p = practicas.find(item => item.id === log.sourceRef.id);
+                    if(p) p.done = false;
+                } else if(log.sourceRef.type === 'repetition') {
+                    const tema = temas.find(item => item.id === log.sourceRef.id);
+                    if(tema) {
+                        tema.repStage = log.sourceRef.previousStage || 1;
+                        if(log.sourceRef.previousNextSp) {
+                            tema.nextSp = log.sourceRef.previousNextSp;
+                        }
+                        tema.repCompleted = false;
+                    }
+                } else if(log.sourceRef.type === 'schedule') {
+                    const slot = weeklySchedule.find(item => item.id === log.sourceRef.id);
+                    if(slot) slot.done = false;
+                }
+            }
+
+            logs.splice(logIdx, 1);
+            saveAll(true);
+            renderTracker();
+            renderDailyPlan();
+            renderizarTemas();
+            renderDashboard();
+        }
+
+        function renderDailyPlan() {
+            const tbody = document.getElementById('listaDailyBody');
+            const mode = document.getElementById('daily-filter-mode').value;
+            const dateFilterInput = document.getElementById('daily-date-filter');
+            if(!dateFilterInput.value) {
+                dateFilterInput.value = new Date().toISOString().split('T')[0];
+            }
+            const selectedDate = dateFilterInput.value;
+            tbody.innerHTML = '';
+
+            let combinedTasks = [...weeklySchedule.map(s => ({
+                id: 'sched_' + s.id,
+                rawId: s.id,
+                date: s.date,
+                startTime: s.startTime,
+                endTime: s.endTime,
+                block: s.block,
+                description: s.description,
+                done: s.done,
+                source: 'schedule'
+            }))];
+
+            practicas.forEach(p => {
+                if(p.fecha && !p.done) {
+                    combinedTasks.push({
+                        id: 'prac_' + p.id,
+                        rawId: p.id,
+                        date: p.fecha,
+                        startTime: p.startTime || "09:00",
+                        endTime: p.endTime || "11:00",
+                        block: "Practical",
+                        description: `Practical Case ${p.num}${p.tipo} (${p.bloque}): ${p.temas || 'Review case'}`,
+                        done: p.done || false,
+                        source: 'practical'
+                    });
+                }
+            });
+
+            temas.forEach(t => {
+                if(t.nextSp && t.nextSp !== "Pending" && t.nextSp !== "Mastered!") {
+                    const dateMatch = t.nextSp.match(/^\d{4}-\d{2}-\d{2}/);
+                    if(dateMatch) {
+                        const repDate = dateMatch[0];
+                        combinedTasks.push({
+                            id: 'rep_' + t.id,
+                            rawId: t.id,
+                            date: repDate,
+                            startTime: t.startTime || "10:00",
+                            endTime: t.endTime || "11:00",
+                            block: "Syllabus",
+                            description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`,
+                            done: t.repCompleted || false,
+                            source: 'repetition'
+                        });
+                    }
+                }
+            });
+
+            let filtered = combinedTasks;
+            if(mode === 'date') {
+                filtered = combinedTasks.filter(d => d.date === selectedDate);
+            } else if(mode === 'week') {
+                const curr = new Date(selectedDate);
+                const firstDayOfWeek = new Date(curr.setDate(curr.getDate() - curr.getDay() + (curr.getDay() === 0 ? -6 : 1)));
+                const lastDayOfWeek = new Date(firstDayOfWeek);
+                lastDayOfWeek.setDate(lastDayOfWeek.getDate() + 6);
+
+                const fStart = firstDayOfWeek.toISOString().split('T')[0];
+                const fEnd = lastDayOfWeek.toISOString().split('T')[0];
+
+                filtered = combinedTasks.filter(d => d.date >= fStart && d.date <= fEnd);
+            }
+
+            filtered.sort((a,b) => {
+                if(a.date !== b.date) return a.date.localeCompare(b.date);
+                return (a.startTime || "00:00").localeCompare(b.startTime || "00:00");
+            });
+
+            const completedCount = filtered.filter(d => d.done).length;
+            document.getElementById('daily-stats-summary').innerText = `Completed: ${completedCount} / ${filtered.length} tasks`;
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">No tasks scheduled for this period. Add slots in the Weekly Schedule or set study dates in Syllabus/Practical tabs.</td></tr>`;
+                return;
+            }
+
+            const timeOptions = availableTimes.map(t => `<option value="${t}">${t}</option>`).join('');
+
+            filtered.forEach(d => {
+                const tr = document.createElement('tr');
+                if(d.source === 'practical') {
+                    tr.innerHTML = `
+                        <td class="p-3 font-semibold text-slate-900"><input type="date" value="${d.date}" onchange="updatePracticalDateField(${d.rawId}, this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white"></td>
+                        <td class="p-3">
+                            <div class="flex items-center space-x-1">
+                                <select onchange="updatePracticalTimeField(${d.rawId}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${d.startTime}"`, `value="${d.startTime}" selected`)}</select>
+                                <span class="text-slate-400">-</span>
+                                <select onchange="updatePracticalTimeField(${d.rawId}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${d.endTime}"`, `value="${d.endTime}" selected`)}</select>
+                            </div>
+                        </td>
+                        <td class="p-3"><span class="font-medium text-xs bg-violet-50 text-violet-700 px-2 py-1 rounded">Practical</span></td>
+                        <td class="p-3 font-medium text-slate-800"><input type="text" value="${d.description}" onchange="updatePracticalDescField(${d.rawId}, this.value)" class="w-full p-1 border border-slate-200 rounded text-xs bg-white"></td>
+                        <td class="p-3 text-center"><input type="checkbox" ${d.done ? 'checked' : ''} onchange="togglePracticalDone(${d.rawId}, this.checked)" class="w-4 h-4 text-indigo-600 rounded cursor-pointer"></td>
+                        <td class="p-3 text-center"><button onclick="eliminarPractica(${d.rawId})" class="px-2 py-1 bg-rose-600 text-white rounded hover:bg-rose-700 text-xs font-bold"><i class="fa-solid fa-trash-can"></i></button></td>
+                    `;
+                } else if(d.source === 'repetition') {
+                    tr.innerHTML = `
+                        <td class="p-3 font-semibold text-slate-900"><input type="date" value="${d.date}" onchange="updateRepDate(${d.rawId}, this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white"></td>
+                        <td class="p-3">
+                            <div class="flex items-center space-x-1">
+                                <select onchange="updateRepTimeField(${d.rawId}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${d.startTime}"`, `value="${d.startTime}" selected`)}</select>
+                                <span class="text-slate-400">-</span>
+                                <select onchange="updateRepTimeField(${d.rawId}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${d.endTime}"`, `value="${d.endTime}" selected`)}</select>
+                            </div>
+                        </td>
+                        <td class="p-3"><span class="font-medium text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded">Syllabus</span></td>
+                        <td class="p-3 font-medium text-slate-800"><input type="text" value="${d.description}" onchange="updateRepDescField(${d.rawId}, this.value)" class="w-full p-1 border border-slate-200 rounded text-xs bg-white"></td>
+                        <td class="p-3 text-center"><input type="checkbox" ${d.done ? 'checked' : ''} onchange="toggleRepDone(${d.rawId}, this.checked)" class="w-4 h-4 text-indigo-600 rounded cursor-pointer"></td>
+                        <td class="p-3 text-center">-</td>
+                    `;
+                } else {
+                    tr.innerHTML = `
+                        <td class="p-3 font-semibold text-slate-900"><input type="date" value="${d.date}" onchange="updateDailyField(${d.rawId}, 'date', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white"></td>
+                        <td class="p-3">
+                            <div class="flex items-center space-x-1">
+                                <select onchange="updateDailyField(${d.rawId}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${d.startTime}"`, `value="${d.startTime}" selected`)}</select>
+                                <span class="text-slate-400">-</span>
+                                <select onchange="updateDailyField(${d.rawId}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${d.endTime}"`, `value="${d.endTime}" selected`)}</select>
+                            </div>
+                        </td>
+                        <td class="p-3">
+                            <select onchange="updateDailyField(${d.rawId}, 'block', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white font-medium">
+                                ${scheduleBlocks.map(b => `<option value="${b}" ${d.block === b ? 'selected' : ''}>${b}</option>`).join('')}
+                            </select>
+                        </td>
+                        <td class="p-3"><input type="text" value="${d.description}" onchange="updateDailyField(${d.rawId}, 'description', this.value)" class="w-full p-1 border border-slate-200 rounded text-xs bg-white"></td>
+                        <td class="p-3 text-center"><input type="checkbox" ${d.done ? 'checked' : ''} onchange="toggleWeeklyDone(${d.rawId}, this.checked)" class="w-4 h-4 text-indigo-600 rounded cursor-pointer"></td>
+                        <td class="p-3 text-center">
+                            <button onclick="deleteWeeklySlot(${d.rawId})" class="px-2 py-1 bg-rose-600 text-white rounded hover:bg-rose-700 text-xs font-bold"><i class="fa-solid fa-trash-can"></i></button>
+                        </td>
+                    `;
+                }
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updatePracticalDateField(id, val) {
+            const p = practicas.find(item => item.id === id);
+            if(p) { p.fecha = val; saveAll(true); renderDailyPlan(); renderizarPracticas(); }
+        }
+        function updatePracticalTimeField(id, field, val) {
+            const p = practicas.find(item => item.id === id);
+            if(p) { p[field] = val; saveAll(true); }
+        }
+        function updatePracticalDescField(id, val) {
+            const p = practicas.find(item => item.id === id);
+            if(p) { p.temas = val; saveAll(true); renderDailyPlan(); renderizarPracticas(); }
+        }
+        function updateRepDate(id, val) {
+            const tema = temas.find(t => t.id === id);
+            if(tema) {
+                tema.nextSp = val + ` [Rep ${tema.repStage || 1}]`;
+                saveAll(true);
+                renderDailyPlan();
+                renderizarTemas();
+            }
+        }
+        function updateRepTimeField(id, field, val) {
+            const tema = temas.find(t => t.id === id);
+            if(tema) {
+                if(field === 'startTime') tema.startTime = val;
+                if(field === 'endTime') tema.endTime = val;
+                saveAll(true);
+            }
+        }
+        function updateRepDescField(id, val) {}
+
+        function updateDailyField(id, field, val) {
+            const slot = weeklySchedule.find(s => s.id === id);
+            if(slot) {
+                slot[field] = val;
+                saveAll(true);
+                renderDailyPlan();
+                renderTracker();
+            }
+        }
+
+        function getWeekNumber(d) {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+            var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+            var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+            return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+        }
+
+        function renderTracker() {
+            const container = document.getElementById('weekly-schedule-container');
+            const weekSelector = document.getElementById('week-selector');
+            const timeOptions = availableTimes.map(t => `<option value="${t}">${t}</option>`).join('');
+
+            let masterRows = [...weeklySchedule.map(s => ({ ...s, isManual: true }))];
+            
+            practicas.forEach(p => {
+                if(p.fecha && !p.done) {
+                    masterRows.push({
+                        id: 'prac_' + p.id,
+                        date: p.fecha,
+                        startTime: p.startTime || "09:00",
+                        endTime: p.endTime || "11:00",
+                        block: "Practical",
+                        description: `Practical Case ${p.num}${p.tipo} (${p.bloque}): ${p.temas || 'Review case'}`,
+                        done: p.done || false,
+                        isAuto: true,
+                        rawId: p.id
+                    });
+                }
+            });
+
+            temas.forEach(t => {
+                if(t.nextSp && t.nextSp !== "Pending" && t.nextSp !== "Mastered!") {
+                    const dateMatch = t.nextSp.match(/^\d{4}-\d{2}-\d{2}/);
+                    if(dateMatch) {
+                        masterRows.push({
+                            id: 'rep_' + t.id,
+                            date: dateMatch[0],
+                            startTime: t.startTime || "10:00",
+                            endTime: t.endTime || "11:00",
+                            block: "Syllabus",
+                            description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`,
+                            done: t.repCompleted || false,
+                            isAuto: true,
+                            rawId: t.id
+                        });
+                    }
+                }
+            });
+
+            masterRows.sort((a,b) => {
+                let dateDiff = new Date(a.date || '2026-01-01') - new Date(b.date || '2026-01-01');
+                if(dateDiff !== 0) return dateDiff;
+                return (a.startTime || "00:00").localeCompare(b.startTime || "00:00");
+            });
+
+            const weeksMap = {};
+            masterRows.forEach(item => {
+                const wKey = item.date ? getWeekNumber(new Date(item.date)) : "Unscheduled";
+                if(!weeksMap[wKey]) weeksMap[wKey] = [];
+                weeksMap[wKey].push(item);
+            });
+
+            const currentSelectedWeek = weekSelector ? weekSelector.value : 'all';
+            let weekOptionsHtml = `<option value="all">All Weeks</option>`;
+            Object.keys(weeksMap).sort().forEach(wk => {
+                weekOptionsHtml += `<option value="${wk}" ${currentSelectedWeek === wk ? 'selected' : ''}>Week: ${wk}</option>`;
+            });
+            if(weekSelector) weekSelector.innerHTML = weekOptionsHtml;
+
+            const weekColors = [
+                { bg: "bg-indigo-50/50", border: "border-indigo-200", badge: "bg-indigo-600 text-white" },
+                { bg: "bg-emerald-50/50", border: "border-emerald-200", badge: "bg-emerald-600 text-white" },
+                { bg: "bg-amber-50/50", border: "border-amber-200", badge: "bg-amber-600 text-white" },
+                { bg: "bg-purple-50/50", border: "border-purple-200", badge: "bg-purple-600 text-white" },
+                { bg: "bg-sky-50/50", border: "border-sky-200", badge: "bg-sky-600 text-white" },
+                { bg: "bg-rose-50/50", border: "border-rose-200", badge: "bg-rose-600 text-white" }
+            ];
+
+            let weekIdx = 0;
+            let htmlContent = ``;
+
+            for(const [weekKey, rows] of Object.entries(weeksMap)) {
+                if(currentSelectedWeek !== 'all' && currentSelectedWeek !== weekKey) continue;
+
+                const col = weekColors[weekIdx % weekColors.length];
+                weekIdx++;
+
+                htmlContent += `
+                    <div class="rounded-2xl border ${col.border} ${col.bg} p-4 shadow-2xs">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-bold px-3 py-1 rounded-full ${col.badge}">Week: ${weekKey}</span>
+                            <span class="text-xs text-slate-500 font-medium">${rows.length} scheduled items</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse text-sm bg-white rounded-xl overflow-hidden">
+                                <thead>
+                                    <tr class="bg-slate-100 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase">
+                                        <th class="p-2.5">Date</th>
+                                        <th class="p-2.5">Start & End Time</th>
+                                        <th class="p-2.5">Block / Subject</th>
+                                        <th class="p-2.5">Description</th>
+                                        <th class="p-2.5 text-center">Done</th>
+                                        <th class="p-2.5 text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${rows.map(s => {
+                                        if(s.isAuto) {
+                                            const isRep = s.id.startsWith('rep_');
+                                            const toggleFn = isRep ? `toggleRepDone(${s.rawId}, this.checked)` : `togglePracticalDone(${s.rawId}, this.checked)`;
+                                            return `
+                                                <tr class="bg-slate-50/60">
+                                                    <td class="p-2.5 font-semibold text-slate-700 text-xs">${formatDateDDMMYY(s.date)}</td>
+                                                    <td class="p-2.5 text-slate-500 text-xs">${s.startTime} - ${s.endTime}</td>
+                                                    <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-800">${s.block}</span></td>
+                                                    <td class="p-2.5 text-slate-800 text-xs">${s.description}</td>
+                                                    <td class="p-2.5 text-center"><input type="checkbox" ${s.done ? 'checked' : ''} onchange="${toggleFn}" class="w-4 h-4 text-indigo-600 rounded cursor-pointer"></td>
+                                                    <td class="p-2.5 text-center text-[10px] text-indigo-600 font-semibold">Auto-Synced</td>
+                                                </tr>
+                                            `;
+                                        }
+                                        return `
+                                            <tr>
+                                                <td class="p-2.5">
+                                                    <input type="date" value="${s.date}" onchange="updateWeeklySlot(${s.id}, 'date', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white font-semibold text-indigo-700">
+                                                </td>
+                                                <td class="p-2.5">
+                                                    <div class="flex items-center space-x-1">
+                                                        <select onchange="updateWeeklySlot(${s.id}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${s.startTime}"`, `value="${s.startTime}" selected`)}</select>
+                                                        <span class="text-slate-400">-</span>
+                                                        <select onchange="updateWeeklySlot(${s.id}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${s.endTime}"`, `value="${s.endTime}" selected`)}</select>
+                                                    </div>
+                                                </td>
+                                                <td class="p-2.5">
+                                                    <select onchange="updateWeeklySlot(${s.id}, 'block', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white font-medium">
+                                                        ${scheduleBlocks.map(b => `<option value="${b}" ${s.block === b ? 'selected' : ''}>${b}</option>`).join('')}
+                                                    </select>
+                                                </td>
+                                                <td class="p-2.5"><input type="text" value="${s.description}" onchange="updateWeeklySlot(${s.id}, 'description', this.value)" class="w-full p-1 border border-slate-200 rounded text-xs bg-white"></td>
+                                                <td class="p-2.5 text-center">
+                                                    <input type="checkbox" ${s.done ? 'checked' : ''} onchange="toggleWeeklyDone(${s.id}, this.checked)" class="w-4 h-4 text-indigo-600 rounded cursor-pointer">
+                                                </td>
+                                                <td class="p-2.5 text-center">
+                                                    <button onclick="deleteWeeklySlot(${s.id})" class="px-2 py-1 bg-rose-600 text-white rounded hover:bg-rose-700 text-xs font-bold"><i class="fa-solid fa-trash-can"></i></button>
+                                                </td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = htmlContent;
+
+            const logsContainer = document.getElementById('logs-list-container');
+            if(logsContainer) {
+                logsContainer.innerHTML = logs.map(l => `
+                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex flex-col justify-between text-xs space-y-2">
+                        <div>
+                            <span class="font-bold text-indigo-600">${formatDateDDMMYY(l.date)}</span> &bull; <span class="font-medium">${l.block}</span> (${l.minutes}m)
+                            <p class="text-slate-600 mt-1 font-medium">${l.notes || 'No notes'}</p>
+                        </div>
+                        <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200">
+                            ${l.sourceRef ? `<button onclick="restoreLog(${l.id})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-[11px] transition shadow-2xs"><i class="fa-solid fa-rotate-left mr-1"></i> Restore</button>` : ''}
+                            <button onclick="deleteLog(${l.id})" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg text-[11px] transition shadow-2xs"><i class="fa-solid fa-trash-can mr-1"></i> Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const totalMins = logs.reduce((acc, curr) => acc + curr.minutes, 0);
+            document.getElementById('tracker-total-hours').innerText = (totalMins / 60).toFixed(1) + ' h';
+            document.getElementById('tracker-total-sessions').innerText = logs.length;
+        }
+
+        function addWeeklySlot() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const newSlotId = Date.now();
+
+            weeklySchedule.push({
+                id: newSlotId,
+                date: todayStr,
+                startTime: "09:00",
+                endTime: "11:00",
+                block: "Syllabus",
+                description: "Studying",
+                done: false
+            });
+
+            saveAll(true);
+            renderTracker();
+            renderDailyPlan();
+        }
+
+        function updateWeeklySlot(id, field, val) {
+            const slot = weeklySchedule.find(s => s.id === id);
+            if(slot) {
+                slot[field] = val;
+                saveAll(true);
+                renderDailyPlan();
+            }
+        }
+
+        function toggleWeeklyDone(id, isChecked) {
+            const slot = weeklySchedule.find(s => s.id === id);
+            if(!slot) return;
+            slot.done = isChecked;
+
+            if(isChecked) {
+                const [startH, startM] = slot.startTime.split(':').map(Number);
+                const [endH, endM] = slot.endTime.split(':').map(Number);
+                const totalMins = (endH * 60 + endM) - (startH * 60 + startM);
+                const duration = totalMins > 0 ? totalMins : 120;
+
+                logs.push({
+                    id: Date.now() + Math.random(),
+                    date: slot.date || new Date().toISOString().split('T')[0],
+                    block: slot.block,
+                    minutes: duration,
+                    notes: `Schedule Slot Completed: ${slot.description} (${slot.startTime}-${slot.endTime})`,
+                    sourceRef: { type: 'schedule', id: slot.id }
+                });
+            } else {
+                logs = logs.filter(l => !(l.sourceRef && l.sourceRef.type === 'schedule' && l.sourceRef.id === slot.id));
+            }
+
+            saveAll(true);
+            renderTracker();
+            renderDailyPlan();
+            renderDashboard();
+        }
+
+        function deleteWeeklySlot(id) {
+            weeklySchedule = weeklySchedule.filter(s => s.id !== id);
+            saveAll(true);
+            renderTracker();
+            renderDailyPlan();
+        }
+
+        function openLogModal() {
+            document.getElementById('log-date').valueAsDate = new Date();
+            document.getElementById('log-modal').classList.remove('hidden');
+        }
+        function closeLogModal() { document.getElementById('log-modal').classList.add('hidden'); }
+        function handleLogSubmit(e) {
+            e.preventDefault();
+            const log = {
+                id: Date.now(),
+                date: document.getElementById('log-date').value,
+                block: document.getElementById('log-block').value,
+                minutes: parseInt(document.getElementById('log-minutes').value),
+                notes: document.getElementById('log-notes').value
+            };
+            logs.push(log);
+            saveAll(true);
+            closeLogModal();
+            renderTracker();
+        }
+        function deleteLog(id) {
+            logs = logs.filter(l => l.id !== id);
+            saveAll(true);
+            renderTracker();
+        }
+
+        let timerInterval = null;
+        let timeLeft = 25 * 60;
+        let timerRunning = false;
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            const disp = document.getElementById('dash-timer-display');
+            if(disp) disp.innerText = formatted;
+        }
+
+        function setCustomTimer(mins) {
+            const m = parseInt(mins);
+            if(!isNaN(m) && m > 0) {
+                timeLeft = m * 60;
+                updateTimerDisplay();
+            }
+        }
+
+        function toggleTimer() {
+            if(timerRunning) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                document.getElementById('dash-timer-btn').innerText = "Start Timer";
+            } else {
+                timerRunning = true;
+                document.getElementById('dash-timer-btn').innerText = "Pause Timer";
+                timerInterval = setInterval(() => {
+                    if(timeLeft > 0) {
+                        timeLeft--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        timerRunning = false;
+                        alert("Pomodoro block completed! Great job preparing.");
+                        logs.push({
+                            id: Date.now(),
+                            date: new Date().toISOString().split('T')[0],
+                            block: "Syllabus",
+                            minutes: 25,
+                            notes: "Pomodoro study session"
+                        });
+                        saveAll(true);
+                        renderTracker();
+                        resetTimer();
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            const customInput = document.getElementById('timer-custom-mins');
+            const defaultMins = customInput ? parseInt(customInput.value) || 25 : 25;
+            timeLeft = defaultMins * 60;
+            updateTimerDisplay();
+            const btn = document.getElementById('dash-timer-btn');
+            if(btn) btn.innerText = "Start Timer";
+        }
+    </script>
+</body>
+</html>
