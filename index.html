@@ -93,30 +93,25 @@
     </header>
 
     <nav class="bg-white border-b border-slate-200 sticky top-16 z-20 shadow-xs">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto">
-            <div class="flex space-x-8">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-indigo-600 text-indigo-600 whitespace-nowrap flex items-center space-x-2">
-                    <i class="fa-solid fa-chart-pie"></i><span>Dashboard & Overview</span>
-                </button>
-                <button onclick="switchTab('temario')" id="nav-temario" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
-                    <i class="fa-solid fa-book-open"></i><span>Syllabus (69 Units)</span>
-                </button>
-                <button onclick="switchTab('practicas')" id="nav-practicas" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
-                    <i class="fa-solid fa-pen-nib"></i><span>Practical Cases Zone</span>
-                </button>
-                <button onclick="switchTab('daily')" id="nav-daily" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
-                    <i class="fa-solid fa-calendar-day"></i><span>Daily Plan</span>
-                </button>
-                <button onclick="switchTab('schedule')" id="nav-schedule" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
-                    <i class="fa-solid fa-calendar-days"></i><span>Weekly Schedule & Tracker</span>
-                </button>
-            </div>
-            <div>
-                <!-- LEGAL & RUBRICS BUTTON BESIDE TRACKER TAB -->
-                <button onclick="openLegalModal()" class="inline-flex items-center px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold shadow-sm transition" title="Andalusia Legal Framework & Rubrics">
-                    <i class="fa-solid fa-scale-balanced mr-1.5"></i> Legal & Rubrics
-                </button>
-            </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto space-x-8">
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-indigo-600 text-indigo-600 whitespace-nowrap flex items-center space-x-2">
+                <i class="fa-solid fa-chart-pie"></i><span>Dashboard & Overview</span>
+            </button>
+            <button onclick="switchTab('temario')" id="nav-temario" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
+                <i class="fa-solid fa-book-open"></i><span>Syllabus (69 Units)</span>
+            </button>
+            <button onclick="switchTab('practicas')" id="nav-practicas" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
+                <i class="fa-solid fa-pen-nib"></i><span>Practical Cases Zone</span>
+            </button>
+            <button onclick="switchTab('daily')" id="nav-daily" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
+                <i class="fa-solid fa-calendar-day"></i><span>Daily Plan</span>
+            </button>
+            <button onclick="switchTab('schedule')" id="nav-schedule" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
+                <i class="fa-solid fa-calendar-days"></i><span>Weekly Schedule & Tracker</span>
+            </button>
+            <button onclick="switchTab('legal')" id="nav-legal" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
+                <i class="fa-solid fa-scale-balanced"></i><span>Legal & Rubrics</span>
+            </button>
         </div>
     </nav>
 
@@ -477,113 +472,105 @@
             </div>
         </div>
 
-    </main>
-
-    <!-- LEGAL & RUBRICS QUICK-REFERENCE MODAL -->
-    <div id="legal-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-4xl w-full p-6 shadow-2xl border border-slate-100 max-h-[85vh] flex flex-col">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
-                        <i class="fa-solid fa-scale-balanced"></i>
-                    </div>
+        <!-- LEGAL & RUBRICS TAB (WITH SEARCH ENGINE) -->
+        <div id="tab-legal" class="tab-content space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
+                
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4">
                     <div>
-                        <h3 class="text-lg font-bold text-slate-900">Legal Framework & Oposiciones Rubrics</h3>
+                        <h2 class="text-xl font-bold text-slate-900">Legal Framework & Oposiciones Rubrics</h2>
                         <p class="text-xs text-slate-500">Andalusia Secondary Education (English) • Updated 2026/2027</p>
                     </div>
+                    <div class="w-full sm:w-72">
+                        <input type="text" id="legal-search-input" oninput="filterLegalContent()" placeholder="🔍 Search laws, articles, rubrics..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
                 </div>
-                <button onclick="closeLegalModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
-            </div>
-            
-            <div class="overflow-y-auto space-y-4 flex-1 pr-2 text-sm text-slate-700">
-                
-                <!-- SECTION 1: OFFICIAL RUBRICS -->
-                <div class="p-4 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-3">
-                    <h4 class="font-bold text-amber-900 text-base"><i class="fa-solid fa-clipboard-check mr-2"></i>1. Official Grading Rubrics (Oposiciones)</h4>
+
+                <div id="legal-content-container" class="space-y-6">
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div class="bg-white p-3 rounded-xl border border-amber-100 shadow-2xs">
-                            <h5 class="font-bold text-indigo-700 text-xs uppercase mb-1">A. Written Theme Rubric</h5>
-                            <ul class="text-xs space-y-1 text-slate-600">
-                                <li class="font-semibold text-slate-800">Structure (10%):</li> Index, Intro, Dev, Conclusion, Bibliography.
-                                <li class="font-semibold text-slate-800 mt-1">Specific Contents (60%):</li> Depth, updating, technical/pedagogical terminology.
-                                <li class="font-semibold text-slate-800 mt-1">Critical Judgment (10%):</li> Epistemological & normative argumentation.
-                                <li class="font-semibold text-slate-800 mt-1">Exemplification (7%):</li> Professional & school context application.
-                                <li class="font-semibold text-slate-800 mt-1">Citations (6%):</li> 3+ normative/biblio references.
-                            </ul>
-                        </div>
-
-                        <div class="bg-white p-3 rounded-xl border border-amber-100 shadow-2xs">
-                            <h5 class="font-bold text-indigo-700 text-xs uppercase mb-1">B. Teaching Program (Written)</h5>
-                            <ul class="text-xs space-y-1 text-slate-600">
-                                <li class="font-semibold text-slate-800">Justification (3%):</li> Relevance of the didactic planning.
-                                <li class="font-semibold text-slate-800 mt-1">Contextualization (3%):</li> Center environment, diversity, student profile.
-                                <li class="font-semibold text-slate-800 mt-1">Structure (21%):</li> 13 core sections (Context, Legislation, Curricular Concretion, DUA, Evaluation, etc.).
-                                <li class="font-semibold text-slate-800 text-rose-600 mt-1">⚠️ Penalization (-10 pts):</li> If any unit lacks at least 1 Learning Situation.
-                            </ul>
-                        </div>
-
-                        <div class="bg-white p-3 rounded-xl border border-amber-100 shadow-2xs">
-                            <h5 class="font-bold text-indigo-700 text-xs uppercase mb-1">C. Unit / Learning Situation Defense</h5>
-                            <ul class="text-xs space-y-1 text-slate-600">
-                                <li class="font-semibold text-slate-800">Methodology & Sequence (28%):</li> Activities, DUA, tasks, group work, gender perspective.
-                                <li class="font-semibold text-slate-800 mt-1">Evaluation (20%):</li> Criteria as reference, varied instruments, rubrics, portfolio.
-                                <li class="font-semibold text-slate-800 mt-1">Oral Expression (15%):</li> Technical terminology, fluency, eye contact, no filler words.
-                                <li class="font-semibold text-slate-800 mt-1">Curricular Concretion (5%):</li> Specific competences, operational descriptors, basic knowledge.
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SECTION 2: LEGAL FRAMEWORK HIERARCHY -->
-                <div class="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200 space-y-3">
-                    <h4 class="font-bold text-indigo-900 text-base"><i class="fa-solid fa-landmark mr-2"></i>2. Legal Framework & Hierarchy (Andalusia)</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                        <div class="bg-white p-3 rounded-xl border border-indigo-100">
-                            <span class="font-extrabold text-indigo-700 block mb-1">Rank 6: Constitution & State Acts</span>
-                            <p class="text-slate-600">Spanish Constitution (1978) &bull; Organic Act 2/2006 (LOE) amended by Organic Act 3/2020 (LOMLOE) &bull; Act 17/2007 (LEA - Education in Andalusia).</p>
-                        </div>
-                        <div class="bg-white p-3 rounded-xl border border-indigo-100">
-                            <span class="font-extrabold text-indigo-700 block mb-1">Rank 3-4: Royal Decrees & Regional Decrees</span>
-                            <p class="text-slate-600">R.D. 217/2022 (ESO Minimum Teachings) &bull; D. 102/2023 (Andalusia ESO Curriculum & Organization) &bull; D. 327/2010 (Secondary School Regulations amended by D. 483/2026).</p>
-                        </div>
-                        <div class="bg-white p-3 rounded-xl border border-indigo-100">
-                            <span class="font-extrabold text-indigo-700 block mb-1">Rank 2: Regional Orders</span>
-                            <p class="text-slate-600">Order of 30 May 2023 (ESO Evaluation & Curriculum implementation, amended by Order 31/8/2026) &bull; Order of 20 August 2010 (School Organization).</p>
-                        </div>
-                        <div class="bg-white p-3 rounded-xl border border-indigo-100">
-                            <span class="font-extrabold text-indigo-700 block mb-1">Rank 1: Resolutions & Instructions</span>
-                            <p class="text-slate-600">Annual implementation instructions and practical application guidelines issued by regional educational bodies.</p>
+                    <!-- SECTION 1: OFFICIAL RUBRICS -->
+                    <div class="legal-card p-5 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-3" data-keywords="rubrics rubricas theme program teaching unit defense 10% 60% 7% 21% 28% 20% penalization">
+                        <h4 class="font-bold text-amber-900 text-base"><i class="fa-solid fa-clipboard-check mr-2"></i>1. Official Grading Rubrics (Oposiciones)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div class="bg-white p-3.5 rounded-xl border border-amber-100 shadow-2xs">
+                                <h5 class="font-bold text-indigo-700 text-xs uppercase mb-1">A. Written Theme Rubric</h5>
+                                <ul class="text-xs space-y-1 text-slate-600">
+                                    <li><strong class="text-slate-800">Structure (10%):</strong> Index, Intro, Dev, Conclusion, Bibliography.</li>
+                                    <li><strong class="text-slate-800">Specific Contents (60%):</strong> Depth, updating, technical/pedagogical terminology.</li>
+                                    <li><strong class="text-slate-800">Critical Judgment (10%):</strong> Epistemological & normative argumentation.</li>
+                                    <li><strong class="text-slate-800">Exemplification (7%):</strong> Professional & school context application.</li>
+                                    <li><strong class="text-slate-800">Citations (6%):</strong> 3+ normative/biblio references.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-xl border border-amber-100 shadow-2xs">
+                                <h5 class="font-bold text-indigo-700 text-xs uppercase mb-1">B. Teaching Program (Written)</h5>
+                                <ul class="text-xs space-y-1 text-slate-600">
+                                    <li><strong class="text-slate-800">Justification (3%):</strong> Relevance of the didactic planning.</li>
+                                    <li><strong class="text-slate-800">Contextualization (3%):</strong> Center environment, diversity, student profile.</li>
+                                    <li><strong class="text-slate-800">Structure (21%):</strong> 13 core sections (Context, Legislation, Curricular Concretion, DUA, Evaluation).</li>
+                                    <li><strong class="text-rose-600 font-semibold">⚠️ Penalization (-10 pts):</strong> If any unit lacks at least 1 Learning Situation.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-xl border border-amber-100 shadow-2xs">
+                                <h5 class="font-bold text-indigo-700 text-xs uppercase mb-1">C. Unit / Learning Situation Defense</h5>
+                                <ul class="text-xs space-y-1 text-slate-600">
+                                    <li><strong class="text-slate-800">Methodology & Sequence (28%):</strong> Activities, DUA, tasks, group work, gender perspective.</li>
+                                    <li><strong class="text-slate-800">Evaluation (20%):</strong> Criteria as reference, varied instruments, rubrics, portfolio.</li>
+                                    <li><strong class="text-slate-800">Oral Expression (15%):</strong> Technical terminology, fluency, eye contact, no filler words.</li>
+                                    <li><strong class="text-slate-800">Curricular Concretion (5%):</strong> Specific competences, operational descriptors.</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- SECTION 3: ENGLISH SUBJECT SPECIFICS & METHODOLOGY -->
-                <div class="p-4 rounded-2xl bg-sky-50/60 border border-sky-200 space-y-3">
-                    <h4 class="font-bold text-sky-900 text-base"><i class="fa-solid fa-language mr-2"></i>3. English Subject Core & Key Methodological Pillars</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                        <div class="bg-white p-3 rounded-xl border border-sky-100">
-                            <span class="font-bold text-sky-800 block mb-1">Specific Competences (Anexo II)</span>
-                            <p class="text-slate-600">1. Understanding (Listening/Reading) &bull; 2. Producing (Speaking/Writing) &bull; 3. Interacting &bull; 4. Mediating &bull; 5. Plilingualism & Strategic Learning &bull; 6. Intercultural Awareness.</p>
-                        </div>
-                        <div class="bg-white p-3 rounded-xl border border-sky-100">
-                            <span class="font-bold text-sky-800 block mb-1">Saberes Básicos (Blocks)</span>
-                            <p class="text-slate-600"><strong>A. Comunicación:</strong> Functions, discursive genres, lexis, phonology, conversational strategies. &bull; <strong>B. Plurilingüismo:</strong> Language comparison, metalanguage. &bull; <strong>C. Interculturalidad:</strong> Sociocultural patterns and ecosocial values.</p>
-                        </div>
-                        <div class="bg-white p-3 rounded-xl border border-sky-100">
-                            <span class="font-bold text-sky-800 block mb-1">Key Principles (D. 102/2023)</span>
-                            <p class="text-slate-600">30 min daily reading time &bull; Universal Design for Learning (UDL / DUA) &bull; Emotional intelligence & conflict resolution &bull; Andalusia cultural heritage & flamenco integration.</p>
+                    <!-- SECTION 2: LEGAL FRAMEWORK HIERARCHY -->
+                    <div class="legal-card p-5 rounded-2xl bg-indigo-50/60 border border-indigo-200 space-y-3" data-keywords="hierarchy constitution lomloe loe lea andalusia royal decrees decrees 102/2023 217/2022 orders">
+                        <h4 class="font-bold text-indigo-900 text-base"><i class="fa-solid fa-landmark mr-2"></i>2. Legal Framework & Hierarchy (Andalusia)</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div class="bg-white p-3.5 rounded-xl border border-indigo-100">
+                                <span class="font-extrabold text-indigo-700 block mb-1">Rank 6: Constitution & State Acts</span>
+                                <p class="text-slate-600">Spanish Constitution (1978) &bull; Organic Act 2/2006 (LOE) amended by Organic Act 3/2020 (LOMLOE) &bull; Act 17/2007 (LEA - Education in Andalusia).</p>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-xl border border-indigo-100">
+                                <span class="font-extrabold text-indigo-700 block mb-1">Rank 3-4: Royal Decrees & Regional Decrees</span>
+                                <p class="text-slate-600">R.D. 217/2022 (ESO Minimum Teachings) &bull; D. 102/2023 (Andalusia ESO Curriculum & Organization) &bull; D. 327/2010 (Secondary School Regulations amended by D. 483/2026).</p>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-xl border border-indigo-100">
+                                <span class="font-extrabold text-indigo-700 block mb-1">Rank 2: Regional Orders</span>
+                                <p class="text-slate-600">Order of 30 May 2023 (ESO Evaluation & Curriculum implementation, amended by Order 31/8/2026) &bull; Order of 20 August 2010 (School Organization).</p>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-xl border border-indigo-100">
+                                <span class="font-extrabold text-indigo-700 block mb-1">Rank 1: Resolutions & Instructions</span>
+                                <p class="text-slate-600">Annual implementation instructions and practical application guidelines issued by regional educational bodies.</p>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- SECTION 3: ENGLISH SUBJECT SPECIFICS & METHODOLOGY -->
+                    <div class="legal-card p-5 rounded-2xl bg-sky-50/60 border border-sky-200 space-y-3" data-keywords="english specific competences understanding producing interacting mediating plurilingualism interculturality saberes basicos dua lomloe">
+                        <h4 class="font-bold text-sky-900 text-base"><i class="fa-solid fa-language mr-2"></i>3. English Subject Core & Key Methodological Pillars</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                            <div class="bg-white p-3.5 rounded-xl border border-sky-100">
+                                <span class="font-bold text-sky-800 block mb-1">Specific Competences (Anexo II)</span>
+                                <p class="text-slate-600">1. Understanding (Listening/Reading) &bull; 2. Producing (Speaking/Writing) &bull; 3. Interacting &bull; 4. Mediating &bull; 5. Plilingualism & Strategic Learning &bull; 6. Intercultural Awareness.</p>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-xl border border-sky-100">
+                                <span class="font-bold text-sky-800 block mb-1">Saberes Básicos (Blocks)</span>
+                                <p class="text-slate-600"><strong>A. Comunicación:</strong> Functions, discursive genres, lexis, phonology, conversational strategies. &bull; <strong>B. Plurilingüismo:</strong> Language comparison, metalanguage. &bull; <strong>C. Interculturalidad:</strong> Sociocultural patterns and ecosocial values.</p>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-xl border border-sky-100">
+                                <span class="font-bold text-sky-800 block mb-1">Key Principles (D. 102/2023)</span>
+                                <p class="text-slate-600">30 min daily reading time &bull; Universal Design for Learning (UDL / DUA) &bull; Emotional intelligence & conflict resolution &bull; Andalusia cultural heritage & flamenco integration.</p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
-            </div>
-
-            <div class="pt-4 border-t mt-4 flex justify-end">
-                <button onclick="closeLegalModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl">Close</button>
             </div>
         </div>
-    </div>
+
+    </main>
 
     <!-- SAVED SESSIONS MODAL -->
     <div id="saved-sessions-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
@@ -1057,12 +1044,18 @@
             document.getElementById('saved-sessions-modal').classList.add('hidden');
         }
 
-        function openLegalModal() {
-            document.getElementById('legal-modal').classList.remove('hidden');
-        }
-
-        function closeLegalModal() {
-            document.getElementById('legal-modal').classList.add('hidden');
+        function filterLegalContent() {
+            const query = document.getElementById('legal-search-input').value.toLowerCase();
+            const cards = document.querySelectorAll('.legal-card');
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                const keywords = (card.getAttribute('data-keywords') || '').toLowerCase();
+                if(text.includes(query) || keywords.includes(query)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         }
 
         function renderSavedSessionsModalList() {
