@@ -445,6 +445,12 @@
                                 <span id="tracker-total-sessions" class="font-extrabold text-slate-900 text-base">0</span>
                             </div>
                         </div>
+                        
+                        <!-- SAVED SESSIONS BUTTON -->
+                        <button onclick="openSavedSessionsModal()" class="inline-flex items-center px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition">
+                            <i class="fa-solid fa-bookmark mr-1.5"></i> Saved Sessions
+                        </button>
+
                         <button onclick="openLogModal()" class="inline-flex items-center px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition">
                             <i class="fa-solid fa-plus mr-1"></i> Log Session
                         </button>
@@ -460,18 +466,27 @@
 
                 <div id="weekly-schedule-container" class="space-y-6 mb-8"></div>
 
-                <div class="mt-8 pt-6 border-t border-slate-200">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-list mr-2 text-indigo-600"></i>Logged Study Sessions History</h3>
-                        <span class="text-xs text-slate-400">Click restore to undo completion or delete to remove log</span>
-                    </div>
-                    <div id="logs-list-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
-                </div>
-
             </div>
         </div>
 
     </main>
+
+    <!-- SAVED SESSIONS MODAL -->
+    <div id="saved-sessions-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-3xl w-full p-6 shadow-2xl border border-slate-100 max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">Logged Study Sessions History</h3>
+                    <p class="text-xs text-slate-500">Click restore to undo completion or delete to remove log</p>
+                </div>
+                <button onclick="closeSavedSessionsModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+            </div>
+            <div id="modal-logs-list-container" class="overflow-y-auto space-y-3 flex-1 pr-1 grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+            <div class="pt-4 border-t mt-4 flex justify-end">
+                <button onclick="closeSavedSessionsModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl">Close</button>
+            </div>
+        </div>
+    </div>
 
     <!-- BLOCK DETAILS MODAL -->
     <div id="block-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
@@ -917,6 +932,48 @@
 
         function closeBlockModal() {
             document.getElementById('block-modal').classList.add('hidden');
+        }
+
+        function openSavedSessionsModal() {
+            renderSavedSessionsModalList();
+            document.getElementById('saved-sessions-modal').classList.remove('hidden');
+        }
+
+        function closeSavedSessionsModal() {
+            document.getElementById('saved-sessions-modal').classList.add('hidden');
+        }
+
+        function renderSavedSessionsModalList() {
+            const container = document.getElementById('modal-logs-list-container');
+            if(!container) return;
+
+            if(logs.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center col-span-2">No logged study sessions found yet.</p>`;
+                return;
+            }
+
+            container.innerHTML = logs.map(l => `
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 flex flex-col justify-between text-xs space-y-2">
+                    <div>
+                        <span class="font-bold text-indigo-600">${formatDateDDMMYY(l.date)}</span> &bull; <span class="font-medium">${l.block}</span> (${l.minutes}m)
+                        <p class="text-slate-600 mt-1 font-medium">${l.notes || 'No notes'}</p>
+                    </div>
+                    <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200">
+                        ${l.sourceRef ? `<button onclick="restoreLogModal(${l.id})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-[11px] transition shadow-2xs"><i class="fa-solid fa-rotate-left mr-1"></i> Restore</button>` : ''}
+                        <button onclick="deleteLogModal(${l.id})" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg text-[11px] transition shadow-2xs"><i class="fa-solid fa-trash-can mr-1"></i> Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function restoreLogModal(logId) {
+            restoreLog(logId);
+            renderSavedSessionsModalList();
+        }
+
+        function deleteLogModal(logId) {
+            deleteLog(logId);
+            renderSavedSessionsModalList();
         }
 
         function saveQuickNotes() {
@@ -1588,22 +1645,6 @@
             }
 
             container.innerHTML = htmlContent;
-
-            const logsContainer = document.getElementById('logs-list-container');
-            if(logsContainer) {
-                logsContainer.innerHTML = logs.map(l => `
-                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex flex-col justify-between text-xs space-y-2">
-                        <div>
-                            <span class="font-bold text-indigo-600">${formatDateDDMMYY(l.date)}</span> &bull; <span class="font-medium">${l.block}</span> (${l.minutes}m)
-                            <p class="text-slate-600 mt-1 font-medium">${l.notes || 'No notes'}</p>
-                        </div>
-                        <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200">
-                            ${l.sourceRef ? `<button onclick="restoreLog(${l.id})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-[11px] transition shadow-2xs"><i class="fa-solid fa-rotate-left mr-1"></i> Restore</button>` : ''}
-                            <button onclick="deleteLog(${l.id})" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg text-[11px] transition shadow-2xs"><i class="fa-solid fa-trash-can mr-1"></i> Delete</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
 
             const totalMins = logs.reduce((acc, curr) => acc + curr.minutes, 0);
             document.getElementById('tracker-total-hours').innerText = (totalMins / 60).toFixed(1) + ' h';
