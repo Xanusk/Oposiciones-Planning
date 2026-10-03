@@ -44,26 +44,8 @@
     </style>
 </head>
 <body class="h-full bg-slate-50 text-slate-800 antialiased flex flex-col">
-<!-- PASSWORD PROTECTION OVERLAY -->
-    <div id="auth-modal" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
-            <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center mx-auto text-xl font-bold shadow-md">
-                <i class="fa-solid fa-lock"></i>
-            </div>
-            <div>
-                <h3 class="font-bold text-slate-900 text-lg">Protected Planner</h3>
-                <p class="text-xs text-slate-500 mt-1">Enter your password to access your Oposiciones workspace.</p>
-            </div>
-            <form onsubmit="checkPassword(event)" class="space-y-3">
-                <input type="password" id="page-password" placeholder="Enter password..." required class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-center">
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-sm">
-                    Unlock Planner
-                </button>
-            </form>
-            <p id="auth-error" class="text-xs text-rose-600 font-medium hidden">Incorrect password. Please try again.</p>
-        </div>
-    </div>
-<!-- PASSWORD PROTECTION OVERLAY -->
+
+    <!-- PASSWORD PROTECTION OVERLAY (Single Clean Copy) -->
     <div id="auth-modal" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
             <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center mx-auto text-xl font-bold shadow-md">
@@ -91,7 +73,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-slate-900 leading-tight">Units & Daily Planner - English Oposiciones</h1>
-                    <p class="text-xs text-slate-500">Comprehensive Syllabus, Practical Cases, Daily Plan & Weekly Schedule <span class="text-indigo-600 font-medium ml-1">&bull; Created by Ana Martínez Fuentes</span></p>
+                    <p class="text-xs text-slate-500">Comprehensive Syllabus, Practical Cases, Daily Plan & Weekly Schedule <span class="text-indigo-600 font-medium ml-1">&bull; Created by Ana Martínez Fuentes</span>[cite: 3]</p>
                 </div>
             </div>
             <div class="flex items-center space-x-3">
@@ -102,7 +84,7 @@
                 <a href="https://notebook.google.com/notebook/de4ed6e6-c083-4c7d-bf6b-cf6239e5c10f" target="_blank" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium transition shadow-sm">
                     <i class="fa-solid fa-robot mr-2"></i> NotebookLM
                 </a>
-<!-- TINY RED LOG OFF BUTTON -->
+                <!-- TINY RED LOG OFF BUTTON -->
                 <button onclick="logOff()" class="w-9 h-9 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white flex items-center justify-center text-xs transition shadow-xs" title="Log Off">
                     <i class="fa-solid fa-power-off"></i>
                 </button>
@@ -127,19 +109,6 @@
             <button onclick="switchTab('schedule')" id="nav-schedule" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
                 <i class="fa-solid fa-calendar-days"></i><span>Weekly Schedule & Tracker</span>
             </button>
-<div class="flex items-center space-x-3">
-                <span id="syncStatus" class="text-xs font-medium px-3 py-1 rounded-full bg-slate-100 text-slate-600">☁️ Connected</span>
-                <button onclick="syncToCloud(true)" class="hidden sm:inline-flex items-center px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition shadow-sm">
-                    <i class="fa-solid fa-rotate mr-2"></i> Sync Now
-                </button>
-                <a href="https://notebook.google.com/notebook/de4ed6e6-c083-4c7d-bf6b-cf6239e5c10f" target="_blank" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium transition shadow-sm">
-                    <i class="fa-solid fa-robot mr-2"></i> NotebookLM
-                </a>
-                <!-- NEW LOG OFF BUTTON -->
-                <button onclick="logOff()" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-rose-600 hover:text-white text-slate-700 text-sm font-medium transition shadow-sm" title="Lock Planner">
-                    <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Log Off
-                </button>
-            </div>
         </div>
     </nav>
 
@@ -724,7 +693,6 @@
         let syncTimeout = null;
 
         function saveAll(sync = true) {
-            // 1. Always save instantly to localStorage for immediate UI persistence
             localStorage.setItem('opos_temario_v17', JSON.stringify(temas));
             localStorage.setItem('opos_bloques_v17', JSON.stringify(bloquesPracticas));
             localStorage.setItem('opos_practicas_v17', JSON.stringify(practicas));
@@ -734,7 +702,6 @@
 
             renderDashboard();
 
-            // 2. Debounce cloud sync so it doesn't lag user interactions
             if (sync && window.db) {
                 const badge = document.getElementById('syncStatus');
                 if(badge) badge.innerText = "⏳ Pending Sync...";
@@ -742,19 +709,17 @@
                 clearTimeout(syncTimeout);
                 syncTimeout = setTimeout(() => {
                     syncToCloud(false);
-                }, 1500); // Waits 1.5 seconds after your last change before uploading to Firebase
+                }, 1500);
             }
         }
 
-       async function syncToCloud(manual = false) {
+        async function syncToCloud(manual = false) {
             if(!window.db) return;
             const badge = document.getElementById('syncStatus');
             if(badge) badge.innerText = "⏳ Saving...";
             
             try {
                 const dbRef = window.rtdbRef(window.db, 'english_opos_data/user_main');
-                
-                // Add a 5-second timeout promise so it never gets stuck forever if the network drops
                 const savePromise = window.rtdbSet(dbRef, { 
                     temas, bloquesPracticas, practicas, weeklySchedule, logs, quickNotes, updatedAt: new Date().toISOString() 
                 });
@@ -832,16 +797,12 @@
 
         function renderDashboard() {
             const studied = temas.filter(t => t.read || t.sumup || t.repStage > 0).length;
-            
-            // Calculate blocks and total syllabus progress precisely according to user rule:
-            // Each block has 100% shared equally among its topics.
-            // Main syllabus progress is the average of all block percentages.
             const blocksMap = {};
             temas.forEach(t => {
                 if(!blocksMap[t.block]) blocksMap[t.block] = { totalUnits: 0, blockUnitsScoreSum: 0 };
                 blocksMap[t.block].totalUnits++;
                 let pts = (t.read ? 1 : 0) + (t.sumup ? 1 : 0) + Math.min(4, t.repStage || 0);
-                let uFrac = pts / 6; // 0 to 1 fraction per unit
+                let uFrac = pts / 6;
                 blocksMap[t.block].blockUnitsScoreSum += uFrac;
             });
 
@@ -855,7 +816,6 @@
             });
 
             const overallPct = blockNames.length > 0 ? Math.round(sumOfBlockPercentages / blockNames.length) : 0;
-
             const totalMins = logs.reduce((acc, curr) => acc + curr.minutes, 0);
             const totalHours = (totalMins / 60).toFixed(1);
 
@@ -864,7 +824,6 @@
             
             const completedPracticalsCount = practicas.filter(p => p.done).length;
             document.getElementById('stat-practicals-count').innerText = completedPracticalsCount;
-            
             document.getElementById('stat-study-hours').innerText = `${totalHours}h`;
 
             const grid = document.getElementById('dashboard-blocks-grid');
@@ -1189,12 +1148,6 @@
                 });
                 selectBlock += `</select>`;
 
-                let selectType = `<select onchange="actualizarFilaPractica(${p.id}, 'tipo', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white font-bold text-indigo-600">
-                    <option value="A" ${p.tipo === 'A' ? 'selected' : ''}>Type A</option>
-                    <option value="B" ${p.tipo === 'B' ? 'selected' : ''}>Type B</option>
-                    <option value="C" ${p.tipo === 'C' ? 'selected' : ''}>Type C</option>
-                </select>`;
-
                 const startSel = `<select onchange="updatePracticalTimeField(${p.id}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${p.startTime || '09:00'}"`, `value="${p.startTime || '09:00'}" selected`)}</select>`;
                 const endSel = `<select onchange="updatePracticalTimeField(${p.id}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${p.endTime || '11:00'}"`, `value="${p.endTime || '11:00'}" selected`)}</select>`;
 
@@ -1501,7 +1454,7 @@
                         startTime: p.startTime || "09:00",
                         endTime: p.endTime || "11:00",
                         block: "Practical",
-                        description: `Practical Case ${p.num}${p.tipo} (${p.bloque}): ${p.temas || 'Review case'}`,
+                        description: `Practical Case ${p.num}${p.tipo} (${p.bloque}):${p.temas || 'Review case'}`,
                         done: p.done || false,
                         isAuto: true,
                         rawId: p.id
@@ -1519,7 +1472,7 @@
                             startTime: t.startTime || "10:00",
                             endTime: t.endTime || "11:00",
                             block: "Syllabus",
-                            description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`,
+                            description: `[Rep ${t.repStage || 1}] ${t.ref} -${t.nombre}`,
                             done: t.repCompleted || false,
                             isAuto: true,
                             rawId: t.id
@@ -1592,7 +1545,7 @@
                                             return `
                                                 <tr class="bg-slate-50/60">
                                                     <td class="p-2.5 font-semibold text-slate-700 text-xs">${formatDateDDMMYY(s.date)}</td>
-                                                    <td class="p-2.5 text-slate-500 text-xs">${s.startTime} - ${s.endTime}</td>
+                                                    <td class="p-2.5 text-slate-500 text-xs">${s.startTime} -${s.endTime}</td>
                                                     <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-800">${s.block}</span></td>
                                                     <td class="p-2.5 text-slate-800 text-xs">${s.description}</td>
                                                     <td class="p-2.5 text-center"><input type="checkbox" ${s.done ? 'checked' : ''} onchange="${toggleFn}" class="w-4 h-4 text-indigo-600 rounded cursor-pointer"></td>
@@ -1807,40 +1760,12 @@
             const btn = document.getElementById('dash-timer-btn');
             if(btn) btn.innerText = "Start Timer";
         }
-function checkPassword(e) {
+
+        // PASSWORD PROTECTION & LOGOFF LOGIC
+        function checkPassword(e) {
             e.preventDefault();
             const inputVal = document.getElementById('page-password').value;
-            
-            // YOUR PASSWORD (make sure this matches what you set before)
             const mySecretPassword = "Soyanita_2026"; 
-
-            if (inputVal === mySecretPassword) {
-                // Hide the modal and remember permanently using localStorage
-                document.getElementById('auth-modal').classList.add('hidden');
-                localStorage.setItem('opos_authenticated', 'true');
-            } else {
-                document.getElementById('auth-error').classList.remove('hidden');
-            }
-        }
-
-        function logOff() {
-            // Remove the permanent login token and reload the page to lock it
-            localStorage.removeItem('opos_authenticated');
-            location.reload();
-        }
-
-        // Check if already unlocked on this laptop
-        window.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('opos_authenticated') === 'true') {
-                document.getElementById('auth-modal').classList.add('hidden');
-            }
-        });    
-function checkPassword(e) {
-            e.preventDefault();
-            const inputVal = document.getElementById('page-password').value;
-            
-            // PUT YOUR PASSWORD HERE:
-            const mySecretPassword = "tu_password_secreta"; 
 
             if (inputVal === mySecretPassword) {
                 document.getElementById('auth-modal').classList.add('hidden');
@@ -1860,6 +1785,6 @@ function checkPassword(e) {
                 document.getElementById('auth-modal').classList.add('hidden');
             }
         });
-</script>
+    </script>
 </body>
 </html>
