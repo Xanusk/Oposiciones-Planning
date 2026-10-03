@@ -93,22 +93,30 @@
     </header>
 
     <nav class="bg-white border-b border-slate-200 sticky top-16 z-20 shadow-xs">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto space-x-8">
-            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-indigo-600 text-indigo-600 whitespace-nowrap flex items-center space-x-2">
-                <i class="fa-solid fa-chart-pie"></i><span>Dashboard & Overview</span>
-            </button>
-            <button onclick="switchTab('temario')" id="nav-temario" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
-                <i class="fa-solid fa-book-open"></i><span>Syllabus (69 Units)</span>
-            </button>
-            <button onclick="switchTab('practicas')" id="nav-practicas" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
-                <i class="fa-solid fa-pen-nib"></i><span>Practical Cases Zone</span>
-            </button>
-            <button onclick="switchTab('daily')" id="nav-daily" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
-                <i class="fa-solid fa-calendar-day"></i><span>Daily Plan</span>
-            </button>
-            <button onclick="switchTab('schedule')" id="nav-schedule" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
-                <i class="fa-solid fa-calendar-days"></i><span>Weekly Schedule & Tracker</span>
-            </button>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto">
+            <div class="flex space-x-8">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-indigo-600 text-indigo-600 whitespace-nowrap flex items-center space-x-2">
+                    <i class="fa-solid fa-chart-pie"></i><span>Dashboard & Overview</span>
+                </button>
+                <button onclick="switchTab('temario')" id="nav-temario" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
+                    <i class="fa-solid fa-book-open"></i><span>Syllabus (69 Units)</span>
+                </button>
+                <button onclick="switchTab('practicas')" id="nav-practicas" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
+                    <i class="fa-solid fa-pen-nib"></i><span>Practical Cases Zone</span>
+                </button>
+                <button onclick="switchTab('daily')" id="nav-daily" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
+                    <i class="fa-solid fa-calendar-day"></i><span>Daily Plan</span>
+                </button>
+                <button onclick="switchTab('schedule')" id="nav-schedule" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
+                    <i class="fa-solid fa-calendar-days"></i><span>Weekly Schedule & Tracker</span>
+                </button>
+            </div>
+            <div>
+                <!-- LEGAL & RUBRICS BUTTON BESIDE TRACKER TAB -->
+                <button onclick="openLegalModal()" class="inline-flex items-center px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold shadow-sm transition" title="Andalusia Legal Framework & Rubrics">
+                    <i class="fa-solid fa-scale-balanced mr-1.5"></i> Legal & Rubrics
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -449,11 +457,6 @@
                         <!-- SAVED SESSIONS BUTTON -->
                         <button onclick="openSavedSessionsModal()" class="inline-flex items-center px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition">
                             <i class="fa-solid fa-bookmark mr-1.5"></i> Saved Sessions
-                        </button>
-
-                        <!-- LEGAL & RUBRICS QUICK REFERENCE BUTTON -->
-                        <button onclick="openLegalModal()" class="inline-flex items-center px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold shadow-sm transition" title="Andalusia Legal Framework & Rubrics">
-                            <i class="fa-solid fa-scale-balanced mr-1.5"></i> Legal & Rubrics
                         </button>
 
                         <button onclick="openLogModal()" class="inline-flex items-center px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition">
