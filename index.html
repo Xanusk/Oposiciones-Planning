@@ -44,6 +44,25 @@
     </style>
 </head>
 <body class="h-full bg-slate-50 text-slate-800 antialiased flex flex-col">
+<!-- PASSWORD PROTECTION OVERLAY -->
+    <div id="auth-modal" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center mx-auto text-xl font-bold shadow-md">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-900 text-lg">Protected Planner</h3>
+                <p class="text-xs text-slate-500 mt-1">Enter your password to access your Oposiciones workspace.</p>
+            </div>
+            <form onsubmit="checkPassword(event)" class="space-y-3">
+                <input type="password" id="page-password" placeholder="Enter password..." required class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-center">
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-sm">
+                    Unlock Planner
+                </button>
+            </form>
+            <p id="auth-error" class="text-xs text-rose-600 font-medium hidden">Incorrect password. Please try again.</p>
+        </div>
+    </div>
 
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -1752,6 +1771,28 @@
             const btn = document.getElementById('dash-timer-btn');
             if(btn) btn.innerText = "Start Timer";
         }
-    </script>
+function checkPassword(e) {
+            e.preventDefault();
+            const inputVal = document.getElementById('page-password').value;
+            
+            // SET YOUR PASSWORD HERE:
+            const mySecretPassword = "Soyanita_2026"; 
+
+            if (inputVal === mySecretPassword) {
+                // Hide the modal and remember the session so you don't have to re-type it every single click
+                document.getElementById('auth-modal').classList.add('hidden');
+                sessionStorage.setItem('opos_authenticated', 'true');
+            } else {
+                document.getElementById('auth-error').classList.remove('hidden');
+            }
+        }
+
+        // Check if already unlocked during this browser session
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('opos_authenticated') === 'true') {
+                document.getElementById('auth-modal').classList.add('hidden');
+            }
+        });    
+</script>
 </body>
 </html>
