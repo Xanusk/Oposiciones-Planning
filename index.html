@@ -662,8 +662,7 @@
             </form>
         </div>
     </div>
-
-    <script>
+<script>
         const modelDescriptions = {
             "A": "ANALYSIS, LINGUISTICS & WRITING",
             "B": "ADVANCED GRAMMAR & VOCABULARY",
@@ -919,27 +918,30 @@
             tasks.sort((a,b) => (a.startTime || "00:00").localeCompare(b.startTime || "00:00"));
             return tasks;
         }
-function getOverdueTasks(todayStr) {
-    let tasks = [];
-    weeklySchedule.forEach(s => {
-        if(s.date < todayStr && !s.done) tasks.push({ ...s, source: 'schedule', rawId: s.id });
-    });
-    practicas.forEach(p => {
-        if(p.fecha && p.fecha < todayStr && !p.done) {
-            tasks.push({ block: 'Practical', description: `Practical Case ${p.num}${p.tipo}: ${p.temas || 'Review'}`, done: p.done, source: 'practical', rawId: p.id, date: p.fecha, startTime: p.startTime || "09:00", endTime: p.endTime || "11:00" });
+
+        function getOverdueTasks(todayStr) {
+            let tasks = [];
+            weeklySchedule.forEach(s => {
+                if(s.date && s.date < todayStr && !s.done) {
+                    tasks.push({ ...s, source: 'schedule', rawId: s.id });
+                }
+            });
+            practicas.forEach(p => {
+                if(p.fecha && p.fecha < todayStr && !p.done) {
+                    tasks.push({ block: 'Practical', description: `Practical Case ${p.num}${p.tipo}: ${p.temas || 'Review'}`, done: p.done, source: 'practical', rawId: p.id, date: p.fecha, startTime: p.startTime || "09:00", endTime: p.endTime || "11:00" });
+                }
+            });
+            temas.forEach(t => {
+                if(t.nextSp && t.nextSp !== "Pending" && t.nextSp !== "Mastered!") {
+                    const dateMatch = t.nextSp.match(/^\d{4}-\d{2}-\d{2}/);
+                    if(dateMatch && dateMatch[0] < todayStr && !t.repCompleted) {
+                        tasks.push({ block: 'Syllabus', description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`, done: false, source: 'repetition', rawId: t.id, date: dateMatch[0], startTime: t.startTime || "10:00", endTime: t.endTime || "11:00" });
+                    }
+                }
+            });
+            tasks.sort((a,b) => (a.date || "").localeCompare(b.date || "") || (a.startTime || "00:00").localeCompare(b.startTime || "00:00"));
+            return tasks;
         }
-    });
-    temas.forEach(t => {
-        if(t.nextSp && t.nextSp !== "Pending" && t.nextSp !== "Mastered!") {
-            const dateMatch = t.nextSp.match(/^\d{4}-\d{2}-\d{2}/);
-            if(dateMatch && dateMatch[0] < todayStr && !t.repCompleted) {
-                tasks.push({ block: 'Syllabus', description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`, done: t.repCompleted || false, source: 'repetition', rawId: t.id, date: dateMatch[0], startTime: t.startTime || "10:00", endTime: t.endTime || "11:00" });
-            }
-        }
-    });
-    tasks.sort((a,b) => (a.date || "").localeCompare(b.date || "") || (a.startTime || "00:00").localeCompare(b.startTime || "00:00"));
-    return tasks;
-}
 
         function toggleDashboardTaskDone(source, rawId, isChecked) {
             if(source === 'schedule') {
@@ -1041,26 +1043,29 @@ function getOverdueTasks(todayStr) {
                     </div>
                 `).join('');
             }
-        }
-const overdueContainer = document.getElementById('dashboard-overdue-preview');
-const overdueTasks = getOverdueTasks(todayStr);
 
-if(overdueTasks.length === 0) {
-    overdueContainer.innerHTML = `<p class="text-xs text-rose-400 py-3 text-center">No overdue tasks. You're all caught up!</p>`;
-} else {
-    overdueContainer.innerHTML = overdueTasks.map(t => `
-        <div class="p-2.5 bg-white/60 rounded-xl border border-rose-100 flex items-center justify-between text-xs">
-            <div class="flex items-center space-x-2.5 pr-2">
-                <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleDashboardTaskDone('${t.source}', ${t.rawId}, this.checked)" class="w-4 h-4 text-rose-600 rounded cursor-pointer">
-                <div>
-                    <span class="font-bold text-rose-600 mr-1">[${t.block}]</span>
-                    <span class="text-slate-800">${t.description} <span class="text-[10px] text-rose-500 font-semibold ml-1">(${formatDateDDMMYY(t.date)})</span></span>
-                </div>
-            </div>
-            <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap bg-rose-100 text-rose-800">Overdue</span>
-        </div>
-    `).join('');
-}
+            const overdueContainer = document.getElementById('dashboard-overdue-preview');
+            if (overdueContainer) {
+                const overdueTasks = getOverdueTasks(todayStr);
+
+                if(overdueTasks.length === 0) {
+                    overdueContainer.innerHTML = `<p class="text-xs text-rose-400 py-3 text-center">No overdue tasks. You're all caught up!</p>`;
+                } else {
+                    overdueContainer.innerHTML = overdueTasks.map(t => `
+                        <div class="p-2.5 bg-white/60 rounded-xl border border-rose-100 flex items-center justify-between text-xs">
+                            <div class="flex items-center space-x-2.5 pr-2">
+                                <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleDashboardTaskDone('${t.source}', ${t.rawId}, this.checked)" class="w-4 h-4 text-rose-600 rounded cursor-pointer">
+                                <div>
+                                    <span class="font-bold text-rose-600 mr-1">[${t.block}]</span>
+                                    <span class="text-slate-800">${t.description} <span class="text-[10px] text-rose-500 font-semibold ml-1">(${formatDateDDMMYY(t.date)})</span></span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap bg-rose-100 text-rose-800">Overdue</span>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
 
         function openBlockModal(blockName) {
             const modal = document.getElementById('block-modal');
@@ -1114,12 +1119,12 @@ if(overdueTasks.length === 0) {
             {
                 section: "1. Official Grading Rubrics (Oposiciones)",
                 title: "B. Teaching Program (Written)",
-                text: "Justificación de la programación didáctica (3%). Expresión escrita: Uso apropiado del lenguaje técnico-pedagógico, precisión terminológica, coherencia lingüística, corrección léxica y gramatical (3%). Contextualización: Descripción del centro educativo, entorno socioeducativo, etapa, nivel, materia, alumnado destinatario y diversidad (3%). Estructura (21%): 13 elementos obligatorios que incluyen introducción, marco legislativo, competencias específicas, saberes básicos, criterios de evaluación, principios pedagógicos, orientaciones metodológicas, situaciones de aprendizaje, procedimientos de evaluación y criterios de calificación, evaluación inicial, atención a la diversidad, materiales y recursos, actividades complementarias y extraescolares, evaluación de la programación, desarrollo de unidades didácticas y bibliografía. Penalización (-10 pts): Si cada unidad didáctica no contiene al menos una Situación de Aprendizaje o si la programación no contiene un mínimo de 12 unidades didácticas se penalizará con -10 puntos[cite: 175]."
+                text: "Justificación de la programación didáctica (3%). Expresión escrita: Uso apropiado del lenguaje técnico-pedagógico, precisión terminológica, coherencia lingüística, corrección léxica y gramatical (3%). Contextualización: Descripción del centro educativo, entorno socioeducativo, etapa, nivel, materia, alumnado destinatario y diversidad (3%). Estructura (21%): 13 elementos obligatorios que incluyen introducción, marco legislativo, competencias específicas, saberes básicos, criterios de evaluación, principios pedagógicos, orientaciones metodológicas, situaciones de aprendizaje, procedimientos de evaluación y criterios de calificación, evaluación inicial, atención a la diversidad, materiales y recursos, actividades complementarias y extraescolares, evaluación de la programación, desarrollo de unidades didácticas y bibliografía. Penalización (-10 pts): Si cada unidad didáctica no contiene al menos una Situación de Aprendizaje o si la programación no contiene un mínimo de 12 unidades didácticas se penalizará con -10 puntos."
             },
             {
                 section: "1. Official Grading Rubrics (Oposiciones)",
                 title: "C. Unit / Learning Situation Defense & Penalties (Orden 20/2/2026)",
-                text: "Presentación e introducción excelente (4%). Centro de interés motivador (4%). Descripción detallada (4%). Asociación de competencias específicas (4%). Concreción curricular sobresaliente vinculando competencias, descriptores operativos, criterios de evaluación y saberes básicos (5%). Integración de los aprendizajes en diferentes contextos (5%). Secuencia metodológica completa y coherente con actividades, ejercicios de aplicación, temporalización y recursos diversos (12%). Metodología activa, participativa, trabajo individual y cooperativo, perspectiva de género, conexiones sociales y culturales de Andalucía, atención a la diversidad y DUA (16%). Evaluación formativa, integradora, criterios como referentes, instrumentos variados, autoevaluación y evaluación de la práctica docente (20%). Expresión oral, lenguaje técnico-pedagógico, precisión terminológica y comunicación verbal adecuada (15%). Uso adecuado de la pizarra (3%). Finalización y síntesis (1%). Normativa y bibliografía con más de tres citas (3%). Penalizaciones ortográficas (Anexo VII): 1 falta = -0,5 pts; 2 faltas = -1 pt adicional; 3 faltas = -1 pt adicional; 4 faltas = -1,5 pts adicionales; 5 o más faltas (o tildes incorrectas) = -10 puntos sobre la puntuación final de la parte. La repetición de una misma falta cuenta como una sola[cite: 174]. Penalizaciones de formato y examen (Anexo VIII): -10 puntos automáticos por nombres, marcas o señales que identifiquen al aspirante (incluyendo no escribir por delante y por detrás en el folio o no hacerlo en formato vertical), no estar paginado en numeración arábiga, utilizar folios no facilitados por el tribunal, o resultado ilegible[cite: 174, 175]. Letra Times New Roman de 12 puntos obligatoria en la programación escrita[cite: 175]."
+                text: "Presentación e introducción excelente (4%). Centro de interés motivador (4%). Descripción detallada (4%). Asociación de competencias específicas (4%). Concreción curricular sobresaliente vinculando competencias, descriptores operativos, criterios de evaluación y saberes básicos (5%). Integración de los aprendizajes en diferentes contextos (5%). Secuencia metodológica completa y coherente con actividades, ejercicios de aplicación, temporalización y recursos diversos (12%). Metodología activa, participativa, trabajo individual y cooperativo, perspectiva de género, conexiones sociales y culturales de Andalucía, atención a la diversidad y DUA (16%). Evaluación formativa, integradora, criterios como referentes, instrumentos variados, autoevaluación y evaluación de la práctica docente (20%). Expresión oral, lenguaje técnico-pedagógico, precisión terminológica y comunicación verbal adecuada (15%). Uso adecuado de la pizarra (3%). Finalización y síntesis (1%). Normativa y bibliografía con más de tres citas (3%). Penalizaciones ortográficas (Anexo VII): 1 falta = -0,5 pts; 2 faltas = -1 pt adicional; 3 faltas = -1 pt adicional; 4 faltas = -1,5 pts adicionales; 5 o más faltas (o tildes incorrectas) = -10 puntos sobre la puntuación final de la parte. La repetición de una misma falta cuenta como una sola. Penalizaciones de formato y examen (Anexo VIII): -10 puntos automáticos por nombres, marcas o señales que identifiquen al aspirante (incluyendo no escribir por delante y por detrás en el folio o no hacerlo en formato vertical), no estar paginado en numeración arábiga, utilizar folios no facilitados por el tribunal, o resultado ilegible. Letra Times New Roman de 12 puntos obligatoria en la programación escrita."
             },
             {
                 section: "2. Legal Framework & Hierarchy (Andalusia)",
@@ -1790,7 +1795,7 @@ if(overdueTasks.length === 0) {
                         startTime: p.startTime || "09:00",
                         endTime: p.endTime || "11:00",
                         block: "Practical",
-                        description: `Practical Case ${p.num}${p.tipo} (${p.bloque}): ${p.temas || 'Review case'}`,
+                        description: `Practical Case ${p.num}${p.tipo} (${p.bloque}):${p.temas || 'Review case'}`,
                         done: p.done || false,
                         isAuto: true,
                         rawId: p.id
@@ -1808,7 +1813,7 @@ if(overdueTasks.length === 0) {
                             startTime: t.startTime || "10:00",
                             endTime: t.endTime || "11:00",
                             block: "Syllabus",
-                            description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`,
+                            description: `[Rep ${t.repStage || 1}] ${t.ref} -${t.nombre}`,
                             done: t.repCompleted || false,
                             isAuto: true,
                             rawId: t.id
@@ -2123,19 +2128,12 @@ if(overdueTasks.length === 0) {
             location.reload();
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('opos_authenticated') === 'true') {
-                document.getElementById('auth-modal').classList.add('hidden');
-            }
-        });
-  window.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('opos_authenticated') === 'true') {
-                document.getElementById('auth-modal').classList.add('hidden');
-            }
-        });
+        // Check authentication immediately
+        if (localStorage.getItem('opos_authenticated') === 'true') {
+            const authModal = document.getElementById('auth-modal');
+            if (authModal) authModal.classList.add('hidden');
+        }
     </script>
 </body>
 </html>
-    </script>
-</body>
-</html>
+    
