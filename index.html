@@ -2128,6 +2128,14 @@ if(overdueTasks.length === 0) {
                 document.getElementById('auth-modal').classList.add('hidden');
             }
         });
+  window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('opos_authenticated') === 'true') {
+                document.getElementById('auth-modal').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
     </script>
 </body>
 </html>
