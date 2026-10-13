@@ -355,6 +355,10 @@
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="font-bold text-slate-900">Practicals Management Table</h3>
                     <div class="flex items-center space-x-2 text-sm">
+                        <label class="inline-flex items-center gap-1.5 mr-3 text-xs font-medium text-slate-600 cursor-pointer">
+                            <input type="checkbox" id="showDonePracticals" onchange="renderizarPracticas()" class="w-4 h-4 text-indigo-600 rounded cursor-pointer">
+                            Show completed (<span id="donePracticalsCount">0</span>)
+                        </label>
                         <label for="ordenarPor" class="font-medium text-slate-600">Sort by:</label>
                         <select id="ordenarPor" onchange="renderizarPracticas()" class="px-3 py-1.5 border border-slate-200 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <option value="seleccion">Selection (Number & Type)</option>
@@ -403,6 +407,10 @@
                         <input type="date" id="daily-date-filter" onchange="renderDailyPlan()" class="px-3 py-1.5 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <button onclick="document.getElementById('daily-date-filter').value = new Date().toISOString().split('T')[0]; document.getElementById('daily-filter-mode').value='date'; renderDailyPlan();" class="text-xs text-indigo-600 hover:underline">Today</button>
                     </div>
+                    <label class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 cursor-pointer">
+                        <input type="checkbox" id="showDoneDaily" onchange="renderDailyPlan()" class="w-4 h-4 text-indigo-600 rounded cursor-pointer">
+                        Show completed
+                    </label>
                     <div class="text-xs font-semibold text-slate-500" id="daily-stats-summary">
                         Completed: 0 / 0 tasks
                     </div>
@@ -469,6 +477,10 @@
 
                 <div class="flex justify-between items-center mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
                     <span class="text-xs font-semibold text-slate-600">Configure time slots & check 'Done' to log hours:</span>
+                    <label class="inline-flex items-center gap-1.5 ml-auto mr-3 text-xs font-medium text-slate-600 cursor-pointer">
+                        <input type="checkbox" id="showDoneWeekly" onchange="renderTracker()" class="w-4 h-4 text-indigo-600 rounded cursor-pointer">
+                        Show completed (<span id="doneWeeklyCount">0</span>)
+                    </label>
                     <button onclick="addWeeklySlot()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-xs transition">
                         + Add Schedule Row
                     </button>
@@ -1462,7 +1474,14 @@
             const criterioOrden = document.getElementById('ordenarPor').value;
             tbody.innerHTML = '';
 
-            let sorted = [...practicas];
+            const showDonePrac = document.getElementById('showDonePracticals')?.checked;
+            const donePracCountEl = document.getElementById('donePracticalsCount');
+            if(donePracCountEl) donePracCountEl.innerText = practicas.filter(p => p.done).length;
+            let sorted = showDonePrac ? [...practicas] : practicas.filter(p => !p.done);
+            if(sorted.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">No pending practical cases.</td></tr>`;
+                return;
+            }
             if(criterioOrden === 'deadline') {
                 sorted.sort((a,b) => {
                     if(!a.fecha) return 1;
@@ -1608,7 +1627,7 @@
             }))];
 
             practicas.forEach(p => {
-                if(p.fecha && !p.done) {
+                if(p.fecha) {
                     combinedTasks.push({
                         id: 'prac_' + p.id,
                         rawId: p.id,
@@ -1665,6 +1684,7 @@
 
             const completedCount = filtered.filter(d => d.done).length;
             document.getElementById('daily-stats-summary').innerText = `Completed: ${completedCount} / ${filtered.length} tasks`;
+            if(!document.getElementById('showDoneDaily')?.checked) filtered = filtered.filter(d => !d.done);
 
             if(filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">No tasks scheduled for this period. Add slots in the Weekly Schedule or set study dates in Syllabus/Practical tabs.</td></tr>`;
@@ -1788,7 +1808,7 @@
             let masterRows = [...weeklySchedule.map(s => ({ ...s, isManual: true }))];
             
             practicas.forEach(p => {
-                if(p.fecha && !p.done) {
+                if(p.fecha) {
                     masterRows.push({
                         id: 'prac_' + p.id,
                         date: p.fecha,
@@ -1821,6 +1841,11 @@
                     }
                 }
             });
+
+            const showDoneWeekly = document.getElementById('showDoneWeekly')?.checked;
+            const doneWeeklyCountEl = document.getElementById('doneWeeklyCount');
+            if(doneWeeklyCountEl) doneWeeklyCountEl.innerText = masterRows.filter(r => r.done).length;
+            if(!showDoneWeekly) masterRows = masterRows.filter(r => !r.done);
 
             masterRows.sort((a,b) => {
                 let dateDiff = new Date(a.date || '2026-01-01') - new Date(b.date || '2026-01-01');
@@ -1928,7 +1953,7 @@
                 `;
             }
 
-            container.innerHTML = htmlContent;
+            container.innerHTML = htmlContent || `<p class="text-sm text-slate-400 text-center py-6">No pending schedule items.</p>`;
 
             const totalMins = logs.reduce((acc, curr) => acc + curr.minutes, 0);
             document.getElementById('tracker-total-hours').innerText = (totalMins / 60).toFixed(1) + ' h';
