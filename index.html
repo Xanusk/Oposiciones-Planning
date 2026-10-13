@@ -114,7 +114,6 @@
                         <h3 id="stat-syllabus-progress" class="text-2xl font-bold text-slate-900">0%</h3>
                     </div>
                 </div>
-                <!-- Practical Cases Counter Card with Small Reset Button -->
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
                     <div class="flex items-center space-x-4">
                         <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">
@@ -160,7 +159,6 @@
                 </div>
 
                 <div class="space-y-6">
-                    <!-- Larger Daily Plan Preview Card with Checkboxes -->
                     <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-calendar-day mr-1.5 text-indigo-600"></i>Today's Daily Plan Preview</h3>
@@ -169,13 +167,11 @@
                         <div id="dashboard-daily-preview" class="space-y-2 max-h-80 overflow-y-auto pr-1 text-xs"></div>
                     </div>
 
-                    <!-- Smaller Quick Notes Card -->
                     <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs">
                         <h3 class="font-bold text-slate-900 text-xs mb-2"><i class="fa-solid fa-note-sticky mr-1.5 text-amber-500"></i>Quick Notes</h3>
                         <textarea id="quick-notes" oninput="saveQuickNotes()" placeholder="Jot down key LOMLOE articles, royal decrees, defense tips..." class="w-full h-16 p-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none"></textarea>
                     </div>
 
-                    <!-- Soft Tone Compact Study Timer Card with Manual Minute Adjustment -->
                     <div class="bg-gradient-to-br from-indigo-50 to-sky-50 border border-indigo-100 text-slate-800 rounded-2xl p-4 shadow-xs">
                         <div class="flex items-center justify-between mb-2">
                             <h3 class="font-bold text-xs text-indigo-900"><i class="fa-solid fa-stopwatch mr-1.5 text-indigo-500"></i>Study Timer</h3>
@@ -455,26 +451,39 @@
 
         <!-- LEGAL & RUBRICS TAB -->
         <div id="tab-legal" class="tab-content space-y-6">
-            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
-                <h2 class="text-xl font-bold text-slate-900"><i class="fa-solid fa-scale-balanced text-indigo-600 mr-2"></i>Legal Framework & Assessment Rubrics</h2>
-                <p class="text-sm text-slate-500">Key legal decrees, LOMLOE references, and official grading criteria for English Oposiciones in Spain.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
-                        <h3 class="font-bold text-slate-800 text-sm mb-2"><i class="fa-solid fa-book-bookmark text-indigo-600 mr-2"></i>LOMLOE Framework</h3>
-                        <ul class="text-xs text-slate-600 space-y-1.5 list-disc pl-4">
-                            <li>Organic Law 3/2020 (LOMLOE) modifying LOE.</li>
-                            <li>Key Competences aligned with European Framework (CEFR).</li>
-                            <li>Formative and continuous assessment principles.</li>
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900"><i class="fa-solid fa-scale-balanced text-indigo-600 mr-2"></i>Legal Framework & Assessment Rubrics</h2>
+                    <p class="text-sm text-slate-500">Comprehensive legal decrees, LOMLOE references, official curriculum guidelines, and grading criteria for English Oposiciones in Spain.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-5 rounded-2xl border border-slate-200 bg-slate-50 space-y-3">
+                        <h3 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-book-bookmark text-indigo-600 mr-2 text-base"></i>LOMLOE Educational Framework</h3>
+                        <ul class="text-xs text-slate-700 space-y-2 list-disc pl-4 leading-relaxed">
+                            <li><strong>Organic Law 3/2020 (LOMLOE):</strong> Modifying LOE 2/2006, establishing competence-based learning, inclusive education, and digital/sustainable competencies.</li>
+                            <li><strong>Key Competences (EU Framework):</strong> Linguistic communication, multilingual competence, mathematical/science/technology competence, digital competence, personal/social/learning to learn competence, citizenship competence, entrepreneurship competence, and cultural awareness/expression.</li>
+                            <li><strong>Royal Decree on Curriculum:</strong> Specific regional and state decrees regulating Secondary Education (ESO) and Bachillerato, emphasizing practical tasks, communicative language teaching, and formative/continuous assessment.</li>
+                            <li><strong>Attention to Diversity:</strong> Inclusive principles, Universal Design for Learning (UDL), curricular adaptations, and specific reinforcement measures for SEN students.</li>
                         </ul>
                     </div>
-                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
-                        <h3 class="font-bold text-slate-800 text-sm mb-2"><i class="fa-solid fa-clipboard-check text-emerald-600 mr-2"></i>Defense Rubrics</h3>
-                        <ul class="text-xs text-slate-600 space-y-1.5 list-disc pl-4">
-                            <li>Oral presentation fluency and pronunciation (B2/C1 standard).</li>
-                            <li>Integration of practical methodology and attention to diversity.</li>
-                            <li>Coherence and structure of the lesson/teaching unit defense.</li>
+
+                    <div class="p-5 rounded-2xl border border-slate-200 bg-slate-50 space-y-3">
+                        <h3 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-clipboard-check text-emerald-600 mr-2 text-base"></i>Oral Defense & Practical Rubrics</h3>
+                        <ul class="text-xs text-slate-700 space-y-2 list-disc pl-4 leading-relaxed">
+                            <li><strong>Oral Fluency & Pronunciation:</strong> B2/C1 CEFR standard requirement, communicative impact, lexical precision, and interactive discourse management during defense.</li>
+                            <li><strong>Didactic Rigor:</strong> Coherence between objectives, key competences, evaluation criteria, learning situations (situaciones de aprendizaje), and methodological strategies.</li>
+                            <li><strong>Practical Case Mastery:</strong> Methodological justification, linguistic analysis of texts, phonetic transcriptions, lexical-syntactic commentary, and critical pedagogical reflection.</li>
+                            <li><strong>Board Presentation (Tribunal):</strong> Time management, confidence, persuasive argumentation, original resources, and integration of ICT and gamification.</li>
                         </ul>
                     </div>
+                </div>
+
+                <div class="p-5 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/50 to-sky-50/50 space-y-3">
+                    <h3 class="font-bold text-indigo-900 text-sm flex items-center"><i class="fa-solid fa-lightbulb text-indigo-600 mr-2 text-base"></i>Key Articles & Defense Strategies for Ana Martínez Fuentes</h3>
+                    <p class="text-xs text-slate-700 leading-relaxed">
+                        Remember to anchor every teaching unit and practical case defense in concrete articles of the current educational law (LOMLOE). Highlight the transition from rote memorization to task-based cooperative learning. Emphasize formative assessment rubrics (self-assessment, peer-assessment, and teacher observation checklists) to demonstrate compliance with modern pedagogical standards.
+                    </p>
                 </div>
             </div>
         </div>
@@ -767,17 +776,19 @@
         function getUnifiedTasksForDate(targetDateStr) {
             let tasks = [];
             weeklySchedule.forEach(s => {
-                if(s.date === targetDateStr) tasks.push({ ...s, source: 'schedule', rawId: s.id });
+                if(s.date === targetDateStr && !(s.done && s.date < new Date().toISOString().split('T')[0])) {
+                    tasks.push({ ...s, source: 'schedule', rawId: s.id });
+                }
             });
             practicas.forEach(p => {
-                if(p.fecha === targetDateStr && !p.done) {
+                if(p.fecha === targetDateStr && !(p.done && p.fecha < new Date().toISOString().split('T')[0])) {
                     tasks.push({ block: 'Practical', description: `Practical Case ${p.num}${p.tipo}: ${p.temas || 'Review'}`, done: p.done, source: 'practical', rawId: p.id, startTime: p.startTime || "09:00", endTime: p.endTime || "11:00" });
                 }
             });
             temas.forEach(t => {
                 if(t.nextSp && t.nextSp !== "Pending" && t.nextSp !== "Mastered!") {
                     const dateMatch = t.nextSp.match(/^\d{4}-\d{2}-\d{2}/);
-                    if(dateMatch && dateMatch[0] === targetDateStr) {
+                    if(dateMatch && dateMatch[0] === targetDateStr && !(t.repCompleted && dateMatch[0] < new Date().toISOString().split('T')[0])) {
                         tasks.push({ block: 'Syllabus', description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`, done: t.repCompleted || false, source: 'repetition', rawId: t.id, startTime: t.startTime || "10:00", endTime: t.endTime || "11:00" });
                     }
                 }
@@ -798,7 +809,9 @@
         }
 
         function renderDashboard() {
-            // Block percentage calculation: 100% shared equally among each block's topics
+            const studied = temas.filter(t => t.read || t.sumup || t.repStage > 0).length;
+            
+            // Precise block-weighted percentage calculation: 100% divided equally among each block's topics, then averaged across blocks
             const blocksMap = {};
             temas.forEach(t => {
                 if(!blocksMap[t.block]) blocksMap[t.block] = { totalUnits: 0, blockUnitsScoreSum: 0 };
@@ -819,13 +832,13 @@
 
             const overallPct = blockNames.length > 0 ? Math.round(sumOfBlockPercentages / blockNames.length) : 0;
 
-            const studied = temas.filter(t => t.read || t.sumup || t.repStage > 0).length;
             const totalMins = logs.reduce((acc, curr) => acc + curr.minutes, 0);
             const totalHours = (totalMins / 60).toFixed(1);
 
             document.getElementById('stat-units-studied').innerText = `${studied} / ${temas.length}`;
             document.getElementById('stat-syllabus-progress').innerText = `${overallPct}%`;
             
+            const todayIsoStr = new Date().toISOString().split('T')[0];
             const completedPracticalsCount = practicas.filter(p => p.done).length;
             document.getElementById('stat-practicals-count').innerText = completedPracticalsCount;
             
@@ -847,7 +860,6 @@
                 `;
             }).join('');
 
-            const todayIsoStr = new Date().toISOString().split('T')[0];
             const activePracticals = practicas.filter(p => {
                 if(p.done && p.fecha && p.fecha < todayIsoStr) return false;
                 return !p.done;
@@ -1492,10 +1504,12 @@
             const weekSelector = document.getElementById('week-selector');
             const timeOptions = availableTimes.map(t => `<option value="${t}">${t}</option>`).join('');
 
-            let masterRows = [...weeklySchedule.map(s => ({ ...s, isManual: true }))];
+            const todayIsoStr = new Date().toISOString().split('T')[0];
+
+            let masterRows = [...weeklySchedule.filter(s => !(s.done && s.date && s.date < todayIsoStr)).map(s => ({ ...s, isManual: true }))];
             
             practicas.forEach(p => {
-                if(p.fecha && !p.done) {
+                if(p.fecha && !(p.done && p.fecha < todayIsoStr)) {
                     masterRows.push({
                         id: 'prac_' + p.id,
                         date: p.fecha,
@@ -1514,27 +1528,22 @@
                 if(t.nextSp && t.nextSp !== "Pending" && t.nextSp !== "Mastered!") {
                     const dateMatch = t.nextSp.match(/^\d{4}-\d{2}-\d{2}/);
                     if(dateMatch) {
-                        masterRows.push({
-                            id: 'rep_' + t.id,
-                            date: dateMatch[0],
-                            startTime: t.startTime || "10:00",
-                            endTime: t.endTime || "11:00",
-                            block: "Syllabus",
-                            description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`,
-                            done: t.repCompleted || false,
-                            isAuto: true,
-                            rawId: t.id
-                        });
+                        const repDate = dateMatch[0];
+                        if(!(t.repCompleted && repDate < todayIsoStr)) {
+                            masterRows.push({
+                                id: 'rep_' + t.id,
+                                date: repDate,
+                                startTime: t.startTime || "10:00",
+                                endTime: t.endTime || "11:00",
+                                block: "Syllabus",
+                                description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`,
+                                done: t.repCompleted || false,
+                                isAuto: true,
+                                rawId: t.id
+                            });
+                        }
                     }
                 }
-            });
-
-            const todayIsoStr = new Date().toISOString().split('T')[0];
-            masterRows = masterRows.filter(item => {
-                if(item.done && item.date && item.date < todayIsoStr) {
-                    return false; // hide completed past tasks from weekly schedule
-                }
-                return true;
             });
 
             masterRows.sort((a,b) => {
