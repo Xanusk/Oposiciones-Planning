@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK (Using Safe Sanitized Config to Prevent GitHub Secret Scanning Alerts) -->
+    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -84,6 +84,9 @@
             </button>
             <button onclick="switchTab('schedule')" id="nav-schedule" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
                 <i class="fa-solid fa-calendar-days"></i><span>Weekly Schedule & Tracker</span>
+            </button>
+            <button onclick="switchTab('legal')" id="nav-legal" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
+                <i class="fa-solid fa-scale-balanced"></i><span>Legal & Rubrics</span>
             </button>
         </div>
     </nav>
@@ -421,6 +424,9 @@
                                 <span id="tracker-total-sessions" class="font-extrabold text-slate-900 text-base">0</span>
                             </div>
                         </div>
+                        <button onclick="openSavedSessionsModal()" class="inline-flex items-center px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition">
+                            <i class="fa-solid fa-bookmark mr-1"></i> Saved Sessions
+                        </button>
                         <button onclick="openLogModal()" class="inline-flex items-center px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition">
                             <i class="fa-solid fa-plus mr-1"></i> Log Session
                         </button>
@@ -447,6 +453,32 @@
             </div>
         </div>
 
+        <!-- LEGAL & RUBRICS TAB -->
+        <div id="tab-legal" class="tab-content space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+                <h2 class="text-xl font-bold text-slate-900"><i class="fa-solid fa-scale-balanced text-indigo-600 mr-2"></i>Legal Framework & Assessment Rubrics</h2>
+                <p class="text-sm text-slate-500">Key legal decrees, LOMLOE references, and official grading criteria for English Oposiciones in Spain.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+                        <h3 class="font-bold text-slate-800 text-sm mb-2"><i class="fa-solid fa-book-bookmark text-indigo-600 mr-2"></i>LOMLOE Framework</h3>
+                        <ul class="text-xs text-slate-600 space-y-1.5 list-disc pl-4">
+                            <li>Organic Law 3/2020 (LOMLOE) modifying LOE.</li>
+                            <li>Key Competences aligned with European Framework (CEFR).</li>
+                            <li>Formative and continuous assessment principles.</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
+                        <h3 class="font-bold text-slate-800 text-sm mb-2"><i class="fa-solid fa-clipboard-check text-emerald-600 mr-2"></i>Defense Rubrics</h3>
+                        <ul class="text-xs text-slate-600 space-y-1.5 list-disc pl-4">
+                            <li>Oral presentation fluency and pronunciation (B2/C1 standard).</li>
+                            <li>Integration of practical methodology and attention to diversity.</li>
+                            <li>Coherence and structure of the lesson/teaching unit defense.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- BLOCK DETAILS MODAL -->
@@ -462,6 +494,21 @@
             <div id="block-modal-units-list" class="overflow-y-auto space-y-2 flex-1 pr-2"></div>
             <div class="pt-4 border-t mt-4 flex justify-end">
                 <button onclick="closeBlockModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAVED SESSIONS MODAL -->
+    <div id="saved-sessions-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-slate-900"><i class="fa-solid fa-bookmark text-emerald-600 mr-2"></i>Saved Study Sessions</h3>
+                <button onclick="closeSavedSessionsModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            <p class="text-xs text-slate-500 mb-4">Quick overview of all logged study hours and milestone accomplishments.</p>
+            <div id="saved-sessions-content" class="space-y-2 max-h-60 overflow-y-auto pr-1 text-xs mb-4"></div>
+            <div class="flex justify-end">
+                <button onclick="closeSavedSessionsModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl">Close</button>
             </div>
         </div>
     </div>
@@ -751,7 +798,7 @@
         }
 
         function renderDashboard() {
-            // Precise block percentages: 100% shared among topics in each block, then average across blocks
+            // Block percentage calculation: 100% shared equally among each block's topics
             const blocksMap = {};
             temas.forEach(t => {
                 if(!blocksMap[t.block]) blocksMap[t.block] = { totalUnits: 0, blockUnitsScoreSum: 0 };
@@ -788,18 +835,23 @@
             grid.innerHTML = blockNames.map(b => {
                 const info = blocksMap[b];
                 const col = blockColors[b] || { bg: "bg-slate-50", text: "text-slate-700", border: "border-slate-200", badge: "bg-slate-100 text-slate-700" };
+                const blockUnitsCount = temas.filter(t => t.block === b).length;
                 return `
                     <div onclick="openBlockModal('${b}')" class="p-3.5 rounded-xl border ${col.border} ${col.bg} flex justify-between items-center cursor-pointer hover:shadow-sm transition group">
                         <div>
                             <h4 class="font-semibold ${col.text} text-xs">${b}</h4>
-                            <p class="text-xs text-slate-500">${info.totalUnits} units <span class="text-indigo-500 text-[10px] ml-1">(Click to view)</span></p>
+                            <p class="text-xs text-slate-500">${blockUnitsCount} units <span class="text-indigo-500 text-[10px] ml-1">(Click to view)</span></p>
                         </div>
                         <span class="text-xs font-bold px-2.5 py-1 rounded-lg ${col.badge}">${info.computedPct}%</span>
                     </div>
                 `;
             }).join('');
 
-            const activePracticals = practicas.filter(p => !p.done).sort((a,b) => {
+            const todayIsoStr = new Date().toISOString().split('T')[0];
+            const activePracticals = practicas.filter(p => {
+                if(p.done && p.fecha && p.fecha < todayIsoStr) return false;
+                return !p.done;
+            }).sort((a,b) => {
                 if(!a.fecha) return 1;
                 if(!b.fecha) return -1;
                 let dateDiff = new Date(a.fecha) - new Date(b.fecha);
@@ -875,6 +927,29 @@
 
         function closeBlockModal() {
             document.getElementById('block-modal').classList.add('hidden');
+        }
+
+        function openSavedSessionsModal() {
+            const modal = document.getElementById('saved-sessions-modal');
+            const content = document.getElementById('saved-sessions-content');
+            if(logs.length === 0) {
+                content.innerHTML = `<p class="text-slate-400 text-center py-4">No study sessions logged yet.</p>`;
+            } else {
+                content.innerHTML = logs.map(l => `
+                    <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-center text-xs">
+                        <div>
+                            <span class="font-bold text-indigo-600">${formatDateDDMMYY(l.date)}</span> &bull; <span class="font-medium">${l.block}</span> (${l.minutes}m)
+                            <p class="text-slate-600 mt-0.5">${l.notes || 'No notes'}</p>
+                        </div>
+                        <button onclick="deleteLog(${l.id}); openSavedSessionsModal();" class="text-rose-600 hover:text-rose-800 px-2 py-1"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `).join('');
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeSavedSessionsModal() {
+            document.getElementById('saved-sessions-modal').classList.add('hidden');
         }
 
         function saveQuickNotes() {
@@ -1079,7 +1154,16 @@
             const criterioOrden = document.getElementById('ordenarPor').value;
             tbody.innerHTML = '';
 
-            let sorted = [...practicas];
+            const todayIsoStr = new Date().toISOString().split('T')[0];
+
+            let activePracticas = practicas.filter(p => {
+                if(p.done && p.fecha && p.fecha < todayIsoStr) {
+                    return false; // hide completed practical cases with past dates
+                }
+                return true;
+            });
+
+            let sorted = [...activePracticas];
             if(criterioOrden === 'deadline') {
                 sorted.sort((a,b) => {
                     if(!a.fecha) return 1;
@@ -1445,11 +1529,10 @@
                 }
             });
 
-            // Filter out completed tasks with past dates (prior to today)
             const todayIsoStr = new Date().toISOString().split('T')[0];
             masterRows = masterRows.filter(item => {
                 if(item.done && item.date && item.date < todayIsoStr) {
-                    return false; // hide completed past tasks from the weekly schedule
+                    return false; // hide completed past tasks from weekly schedule
                 }
                 return true;
             });
@@ -1564,7 +1647,7 @@
 
             const logsContainer = document.getElementById('logs-list-container');
             if(logsContainer) {
-                logsContainer.innerHTML = logs.log = logs.map(l => `
+                logsContainer.innerHTML = logs.map(l => `
                     <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex flex-col justify-between text-xs space-y-2">
                         <div>
                             <span class="font-bold text-indigo-600">${formatDateDDMMYY(l.date)}</span> &bull; <span class="font-medium">${l.block}</span> (${l.minutes}m)
@@ -1649,7 +1732,6 @@
 
         function openLogModal() {
             document.getElementById('log-date').valueAsDate = new Date();
-            document.getElementById('log-modal').classList.add('hidden'); // wait, keep modal open
             document.getElementById('log-modal').classList.remove('hidden');
         }
         function closeLogModal() { document.getElementById('log-modal').classList.add('hidden'); }
