@@ -10,19 +10,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (Using Safe Sanitized Config to Prevent GitHub Secret Scanning Alerts) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyCRASuU5amajWJbgmS7x48Z10x5jCVHM2w",
-            authDomain: "control-de-asistencia-idiomas.firebaseapp.com",
-            databaseURL: "https://control-de-asistencia-idiomas-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "control-de-asistencia-idiomas",
-            storageBucket: "control-de-asistencia-idiomas.appspot.com",
-            messagingSenderId: "964518265307",
-            appId: "1:964518265307:web:eb8ee15df48453b00da7fe"
+            apiKey: "YOUR_FIREBASE_API_KEY_PLACEHOLDER",
+            authDomain: "tu-proyecto.firebaseapp.com",
+            databaseURL: "https://tu-proyecto-default-rtdb.firebaseio.com",
+            projectId: "tu-proyecto",
+            storageBucket: "tu-proyecto.appspot.com",
+            messagingSenderId: "tu-id",
+            appId: "tu-id"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -45,26 +45,6 @@
 </head>
 <body class="h-full bg-slate-50 text-slate-800 antialiased flex flex-col">
 
-    <!-- PASSWORD PROTECTION OVERLAY -->
-    <div id="auth-modal" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
-            <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center mx-auto text-xl font-bold shadow-md">
-                <i class="fa-solid fa-lock"></i>
-            </div>
-            <div>
-                <h3 class="font-bold text-slate-900 text-lg">Protected Planner</h3>
-                <p class="text-xs text-slate-500 mt-1">Enter your password to access your Oposiciones workspace.</p>
-            </div>
-            <form onsubmit="checkPassword(event)" class="space-y-3">
-                <input type="password" id="page-password" placeholder="Enter password..." required class="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none text-center">
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-sm">
-                    Unlock Planner
-                </button>
-            </form>
-            <p id="auth-error" class="text-xs text-rose-600 font-medium hidden">Incorrect password. Please try again.</p>
-        </div>
-    </div>
-
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -84,10 +64,6 @@
                 <a href="https://notebook.google.com/notebook/de4ed6e6-c083-4c7d-bf6b-cf6239e5c10f" target="_blank" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium transition shadow-sm">
                     <i class="fa-solid fa-robot mr-2"></i> NotebookLM
                 </a>
-                <!-- TINY RED LOG OFF BUTTON -->
-                <button onclick="logOff()" class="w-9 h-9 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white flex items-center justify-center text-xs transition shadow-xs" title="Log Off">
-                    <i class="fa-solid fa-power-off"></i>
-                </button>
             </div>
         </div>
     </header>
@@ -108,9 +84,6 @@
             </button>
             <button onclick="switchTab('schedule')" id="nav-schedule" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
                 <i class="fa-solid fa-calendar-days"></i><span>Weekly Schedule & Tracker</span>
-            </button>
-            <button onclick="switchTab('legal')" id="nav-legal" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex items-center space-x-2">
-                <i class="fa-solid fa-scale-balanced"></i><span>Legal & Rubrics</span>
             </button>
         </div>
     </nav>
@@ -192,13 +165,6 @@
                         </div>
                         <div id="dashboard-daily-preview" class="space-y-2 max-h-80 overflow-y-auto pr-1 text-xs"></div>
                     </div>
-<!-- Soft Red Overdue Tasks Panel -->
-<div class="bg-rose-50 rounded-2xl border border-rose-200 p-5 shadow-xs">
-    <div class="flex items-center justify-between mb-3">
-        <h3 class="font-bold text-rose-900 text-sm"><i class="fa-solid fa-triangle-exclamation mr-1.5 text-rose-600"></i>Overdue Tasks</h3>
-    </div>
-    <div id="dashboard-overdue-preview" class="space-y-2 max-h-80 overflow-y-auto pr-1 text-xs"></div>
-</div>
 
                     <!-- Smaller Quick Notes Card -->
                     <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs">
@@ -455,12 +421,6 @@
                                 <span id="tracker-total-sessions" class="font-extrabold text-slate-900 text-base">0</span>
                             </div>
                         </div>
-                        
-                        <!-- SAVED SESSIONS BUTTON -->
-                        <button onclick="openSavedSessionsModal()" class="inline-flex items-center px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition">
-                            <i class="fa-solid fa-bookmark mr-1.5"></i> Saved Sessions
-                        </button>
-
                         <button onclick="openLogModal()" class="inline-flex items-center px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition">
                             <i class="fa-solid fa-plus mr-1"></i> Log Session
                         </button>
@@ -476,138 +436,18 @@
 
                 <div id="weekly-schedule-container" class="space-y-6 mb-8"></div>
 
-            </div>
-        </div>
-
-        <!-- LEGAL & RUBRICS TAB (WITH EXHAUSTIVE REAL-TIME DEEP SEARCH ENGINE) -->
-        <div id="tab-legal" class="tab-content space-y-6">
-            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
-                
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-900">Legal Framework & Oposiciones Rubrics</h2>
-                        <p class="text-xs text-slate-500">Andalusia Secondary Education (English) • Full-Text Search Engine (Decreto 102/2023, Orders, Rubrics, Penalties & Curriculum Map)</p>
+                <div class="mt-8 pt-6 border-t border-slate-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-list mr-2 text-indigo-600"></i>Logged Study Sessions History</h3>
+                        <span class="text-xs text-slate-400">Click restore to undo completion or delete to remove log</span>
                     </div>
-                    <div class="w-full sm:w-80 relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
-                            <i class="fa-solid fa-search"></i>
-                        </span>
-                        <input type="text" id="legal-full-search" oninput="searchFullLegalDocs()" placeholder="Search Royal Decrees, STEM1, DUA..." class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
-                    </div>
-                </div>
-
-                <!-- LIVE SEARCH RESULTS CONTAINER -->
-                <div id="search-results-wrapper" class="hidden space-y-3 p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100">
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-bold text-indigo-900 text-xs uppercase tracking-wider"><i class="fa-solid fa-bolt mr-1.5 text-indigo-600"></i>Full-Text Search Results (<span id="search-count">0</span> matches found)</h4>
-                        <button onclick="clearFullSearch()" class="text-xs text-slate-500 hover:text-slate-800 font-medium underline">Clear Search</button>
-                    </div>
-                    <div id="search-results-list" class="space-y-2 max-h-[500px] overflow-y-auto pr-1"></div>
-                </div>
-
-                <div id="legal-sections-container" class="space-y-6">
-                    
-                    <!-- SECTION 1: OFFICIAL RUBRICS & PENALTIES -->
-                    <div class="legal-card p-5 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-3">
-                        <h4 class="font-bold text-amber-900 text-base"><i class="fa-solid fa-clipboard-check mr-2"></i>1. Official Grading Rubrics & Penalties (Oposiciones Andalucía)</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div class="bg-white p-3.5 rounded-xl border border-amber-100 shadow-2xs">
-                                <h5 class="font-bold text-indigo-700 text-xs uppercase mb-1">A. Written Theme Rubric</h5>
-                                <ul class="text-xs space-y-1 text-slate-600">
-                                    <li><strong class="text-slate-800">Structure (10%):</strong> Index, Intro, Dev, Conclusion, Bibliography.</li>
-                                    <li><strong class="text-slate-800">Specific Contents (60%):</strong> Depth, updating, technical/pedagogical terminology.</li>
-                                    <li><strong class="text-slate-800">Critical Judgment (10%):</strong> Epistemological & normative argumentation.</li>
-                                    <li><strong class="text-slate-800">Exemplification (7%):</strong> Professional & school context application.</li>
-                                    <li><strong class="text-slate-800">Citations (6%):</strong> 3+ normative/biblio references.</li>
-                                </ul>
-                            </div>
-                            <div class="bg-white p-3.5 rounded-xl border border-amber-100 shadow-2xs">
-                                <h5 class="font-bold text-indigo-700 text-xs uppercase mb-1">B. Teaching Program (Written)</h5>
-                                <ul class="text-xs space-y-1 text-slate-600">
-                                    <li><strong class="text-slate-800">Justification (3%):</strong> Relevance of the didactic planning.</li>
-                                    <li><strong class="text-slate-800">Contextualization (3%):</strong> Center environment, diversity, student profile.</li>
-                                    <li><strong class="text-slate-800">Structure (21%):</strong> 13 core sections (Context, Legislation, Curricular Concretion, DUA, Evaluation).</li>
-                                    <li><strong class="text-rose-600 font-semibold">⚠ Penalization (-10 pts):</strong> If any unit lacks at least 1 Learning Situation or if program lacks min 12 units[cite: 175].</li>
-                                </ul>
-                            </div>
-                            <div class="bg-white p-3.5 rounded-xl border border-amber-100 shadow-2xs">
-                                <h5 class="font-bold text-indigo-700 text-xs uppercase mb-1">C. Spelling & General Penalties</h5>
-                                <ul class="text-xs space-y-1 text-slate-600">
-                                    <li><strong class="text-slate-800">1 falta:</strong> -0,5 pts. &bull; <strong class="text-slate-800">2 faltas:</strong> -1,5 pts[cite: 174].</li>
-                                    <li><strong class="text-slate-800">3 faltas:</strong> -2,5 pts. &bull; <strong class="text-slate-800">4 faltas:</strong> -4,0 pts[cite: 174].</li>
-                                    <li><strong class="text-rose-600 font-semibold">5+ faltas (o tildes incorrectas):</strong> -10 puntos (Anexo VII)[cite: 174].</li>
-                                    <li><strong class="text-slate-800">-10 pts automáticos:</strong> Marcas de identidad, folios no facilitados, no escribir por anverso/reverso en vertical, ejercicio ilegible (Anexo VIII)[cite: 174, 175].</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 2: LEGAL FRAMEWORK HIERARCHY -->
-                    <div class="legal-card p-5 rounded-2xl bg-indigo-50/60 border border-indigo-200 space-y-3">
-                        <h4 class="font-bold text-indigo-900 text-base"><i class="fa-solid fa-landmark mr-2"></i>2. Legal Framework & Hierarchy (Andalusia)</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                            <div class="bg-white p-3.5 rounded-xl border border-indigo-100">
-                                <span class="font-extrabold text-indigo-700 block mb-1">Rank 6: Constitution & State Acts</span>
-                                <p class="text-slate-600">Spanish Constitution (1978)[cite: 178] &bull; Organic Act 2/2006 (LOE) amended by Organic Act 3/2020 (LOMLOE)[cite: 178] &bull; Act 17/2007 (LEA - Education in Andalusia)[cite: 178].</p>
-                            </div>
-                            <div class="bg-white p-3.5 rounded-xl border border-indigo-100">
-                                <span class="font-extrabold text-indigo-700 block mb-1">Rank 3-4: Royal Decrees & Regional Decrees</span>
-                                <p class="text-slate-600">R.D. 217/2022 (ESO Minimum Teachings)[cite: 178] &bull; R.D. 243/2022 (Upper Secondary Education - Bachillerato)[cite: 178] &bull; D. 102/2023 (Andalusia ESO Curriculum & Organization)[cite: 178] &bull; D. 103/2023 (Bachillerato curriculum)[cite: 178] &bull; D. 327/2010 (Secondary School Regulations amended by D. 483/2026)[cite: 178].</p>
-                            </div>
-                            <div class="bg-white p-3.5 rounded-xl border border-indigo-100">
-                                <span class="font-extrabold text-indigo-700 block mb-1">Rank 2: Regional Orders</span>
-                                <p class="text-slate-600">Orders 30/5/2023 (ESO & Bachillerato curriculum implementation amended by Order 31/8/2026)[cite: 178] &bull; Order 20/8/2010 (school organisation amended by Order 31/8/2026)[cite: 178] &bull; Order 20/2/2026 (Penalizations)[cite: 174].</p>
-                            </div>
-                            <div class="bg-white p-3.5 rounded-xl border border-indigo-100">
-                                <span class="font-extrabold text-indigo-700 block mb-1">Rank 1: Resolutions & Instructions</span>
-                                <p class="text-slate-600">Annual implementation instructions and practical application guidelines issued by regional educational bodies[cite: 178].</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 3: EXHAUSTIVE DECRETO 102/2023, CURRICULAR MAP & ENGLISH CURRICULUM TEXT -->
-                    <div class="legal-card p-5 rounded-2xl bg-sky-50/60 border border-sky-200 space-y-4">
-                        <h4 class="font-bold text-sky-900 text-base"><i class="fa-solid fa-book-bookmark mr-2"></i>3. Complete Decreto 102/2023, Curricular Map & English Curriculum Full Text</h4>
-                        
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                            <div class="bg-white p-3.5 rounded-xl border border-sky-100 space-y-2">
-                                <span class="font-bold text-sky-800 block uppercase">Mapa de Relaciones Curriculares (Anexo VI)</span>
-                                <p class="text-slate-600"><strong>1. Objetivos de Etapa:</strong> Logros esperados al finalizar la etapa vinculados a competencias clave[cite: 177]. <br><strong>2. Perfil de Salida y Competencias Clave (8):</strong> Desempeños imprescindibles al fin de la enseñanza básica (4º ESO) y Perfil Competencial al término de 2º de ESO en Andalucía[cite: 177]. <br><strong>3. Competencias Específicas:</strong> Desempeños desplegados mediante saberes básicos[cite: 177]. <br><strong>4. Criterios de Evaluación:</strong> Niveles de desempeño esperados[cite: 177]. <br><strong>5. Saberes Básicos:</strong> Conocimientos, destrezas y actitudes[cite: 177]. <br><strong>6. Situaciones de Aprendizaje:</strong> Herramientas para integrar elementos curriculares mediante retos y tareas[cite: 177]. Descriptores operativos (ej. STEM1, STEM2, CP1, CP2) como marco referencial[cite: 177].</p>
-                            </div>
-                            <div class="bg-white p-3.5 rounded-xl border border-sky-100 space-y-2">
-                                <span class="font-bold text-sky-800 block uppercase">Saberes Básicos (Blocks A, B, C)</span>
-                                <p class="text-slate-600"><strong>Bloque A (Comunicación):</strong> LEX.1.A.1 a LEX.4.A.12. Autoconfianza. El error como instrumento de mejora y autorreparación. Estrategias para planificar, ejecutar, controlar y reparar textos. Actividades de mediación en situaciones cotidianas. Funciones comunicativas básicas y de uso común: saludar, despedirse, presentar, describir personas, objetos, lugares, fenómenos y acontecimientos, situar en el tiempo y el espacio, pedir e intercambiar información, dar instrucciones, consejos y órdenes, ofrecer y rechazar ayuda, expresar gustos, emociones, narrar pasados, describir presentes, enunciar futuros, opinión, posibilidad, capacidad, obligación, prohibición, argumentaciones sencillas, hipótesis, suposiciones, incertidumbre, duda, reformular y resumir. Modelos contextuales y géneros discursivos. Unidades lingüísticas y significados (entidad, cantidad, cualidad, espacio, tiempo, afirmación, negación, interrogación, exclamación, relaciones lógicas). Léxico de uso común relativo a identificación personal, relaciones interpersonales, ocio, salud, vida cotidiana, vivienda, clima, tecnologías y formación. Patrones sonoros, acentuales, rítmicos y de entonación. Convenciones ortográficas. Convenciones y estrategias conversacionales (síncrono o asíncrono, tomar y ceder la palabra, debatir). Recursos y estrategias de búsqueda de información (diccionarios, bibliotecas, aulas virtuales, videoconferencias, autoría y veracidad de fuentes). <br><strong>Bloque B (Plurilingüismo):</strong> LEX.1.B.1 a LEX.4.B.5. Estrategias y técnicas para responder eficazmente a necesidades comunicativas con fluidez. Estrategias para identificar, organizar, retener, recuperar y utilizar creativamente unidades lingüísticas (léxico, morfosintaxis, patrones sonoros). Herramientas de autoevaluación, coevaluación y autorreparación. Metalenguaje (expresiones y léxico sobre la comunicación y el aprendizaje). Comparación entre lenguas y origen y parentescos. <br><strong>Bloque C (Interculturalidad):</strong> LEX.1.C.1 a LEX.4.C.6. Lengua extranjera como comunicación internacional y enriquecimiento personal. Interés en intercambios comunicativos. Patrones culturales y aspectos socioculturales y sociolingüísticos de la vida cotidiana. Convenciones sociales, lenguaje no verbal, cortesía lingüística y etiqueta digital en países de la lengua extranjera. Estrategias para entender y apreciar la diversidad lingüística, cultural y artística atendiendo a valores ecosociales y democráticos. Detección y actuación ante usos discriminatorios del lenguaje verbal y no verbal por motivos de género u origen.</p>
-                            </div>
-                            <div class="bg-white p-3.5 rounded-xl border border-sky-100 space-y-2">
-                                <span class="font-bold text-sky-800 block uppercase">Decreto 102/2023 - Articulado Completo</span>
-                                <p class="text-slate-600"><strong>Artículo 1-5:</strong> Objeto, ámbito de aplicación, marco del sistema educativo, definiciones (objetivos, competencias clave, específicas, criterios de evaluación, saberes básicos, situaciones de aprendizaje, perfil de salida y perfil competencial). <br><strong>Artículo 6 (Principios pedagógicos):</strong> Tiempo diario de lectura no inferior a 30 minutos[cite: 99], desarrollo de competencias, tecnologías TIC[cite: 99], desarrollo sostenible[cite: 99], Diseño Universal para el Aprendizaje (DUA)[cite: 99], inteligencia emocional y resolución de conflictos[cite: 99], patrimonio cultural y flamenco de Andalucía[cite: 99], igualdad de género (Ley 12/2007)[cite: 99], proyectos significativos y razonamiento matemático[cite: 99]. <br><strong>Artículo 7-10:</strong> Situaciones de aprendizaje y ordenación de cursos 1º a 4º de ESO. <br><strong>Artículo 13-15:</strong> Evaluación continua, formativa e integradora, criterios de evaluación, promoción excepcional, título de Graduado en ESO. <br><strong>Artículo 21-23:</strong> Atención a la diversidad, alumnado con necesidad específica de apoyo educativo, y programa de diversificación curricular.</p>
-                            </div>
-                        </div>
-                    </div>
-
+                    <div id="logs-list-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
                 </div>
 
             </div>
         </div>
 
     </main>
-
-    <!-- SAVED SESSIONS MODAL -->
-    <div id="saved-sessions-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-3xl w-full p-6 shadow-2xl border border-slate-100 max-h-[85vh] flex flex-col">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-                <div>
-                    <h3 class="text-lg font-bold text-slate-900">Logged Study Sessions History</h3>
-                    <p class="text-xs text-slate-500">Click restore to undo completion or delete to remove log</p>
-                </div>
-                <button onclick="closeSavedSessionsModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
-            </div>
-            <div id="modal-logs-list-container" class="overflow-y-auto space-y-3 flex-1 pr-1 grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-            <div class="pt-4 border-t mt-4 flex justify-end">
-                <button onclick="closeSavedSessionsModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl">Close</button>
-            </div>
-        </div>
-    </div>
 
     <!-- BLOCK DETAILS MODAL -->
     <div id="block-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
@@ -662,7 +502,8 @@
             </form>
         </div>
     </div>
-<script>
+
+    <script>
         const modelDescriptions = {
             "A": "ANALYSIS, LINGUISTICS & WRITING",
             "B": "ADVANCED GRAMMAR & VOCABULARY",
@@ -825,8 +666,6 @@
             renderTracker();
         }
 
-        let syncTimeout = null;
-
         function saveAll(sync = true) {
             localStorage.setItem('opos_temario_v17', JSON.stringify(temas));
             localStorage.setItem('opos_bloques_v17', JSON.stringify(bloquesPracticas));
@@ -836,40 +675,21 @@
             localStorage.setItem('opos_notes_v17', quickNotes);
 
             renderDashboard();
-
-            if (sync && window.db) {
-                const badge = document.getElementById('syncStatus');
-                if(badge) badge.innerText = "⏳ Pending Sync...";
-                
-                clearTimeout(syncTimeout);
-                syncTimeout = setTimeout(() => {
-                    syncToCloud(false);
-                }, 1500);
-            }
+            if(sync) syncToCloud(false);
         }
 
         async function syncToCloud(manual = false) {
             if(!window.db) return;
             const badge = document.getElementById('syncStatus');
             if(badge) badge.innerText = "⏳ Saving...";
-            
             try {
                 const dbRef = window.rtdbRef(window.db, 'english_opos_data/user_main');
-                const savePromise = window.rtdbSet(dbRef, { 
-                    temas, bloquesPracticas, practicas, weeklySchedule, logs, quickNotes, updatedAt: new Date().toISOString() 
-                });
-                
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Sync timeout')), 5000)
-                );
-
-                await Promise.race([savePromise, timeoutPromise]);
-
+                await window.rtdbSet(dbRef, { temas, bloquesPracticas, practicas, weeklySchedule, logs, quickNotes, updatedAt: new Date().toISOString() });
                 if(badge) badge.innerText = "☁ Synchronized";
                 if(manual) alert("Data successfully synchronized to the cloud!");
             } catch(e) {
                 console.error("Cloud sync error:", e);
-                if(badge) badge.innerText = "⚠️ Sync Error";
+                if(badge) badge.innerText = "☁ Sync Error";
                 if(manual) alert("Error syncing to cloud. Check connection.");
             }
         }
@@ -919,30 +739,6 @@
             return tasks;
         }
 
-        function getOverdueTasks(todayStr) {
-            let tasks = [];
-            weeklySchedule.forEach(s => {
-                if(s.date && s.date < todayStr && !s.done) {
-                    tasks.push({ ...s, source: 'schedule', rawId: s.id });
-                }
-            });
-            practicas.forEach(p => {
-                if(p.fecha && p.fecha < todayStr && !p.done) {
-                    tasks.push({ block: 'Practical', description: `Practical Case ${p.num}${p.tipo}: ${p.temas || 'Review'}`, done: p.done, source: 'practical', rawId: p.id, date: p.fecha, startTime: p.startTime || "09:00", endTime: p.endTime || "11:00" });
-                }
-            });
-            temas.forEach(t => {
-                if(t.nextSp && t.nextSp !== "Pending" && t.nextSp !== "Mastered!") {
-                    const dateMatch = t.nextSp.match(/^\d{4}-\d{2}-\d{2}/);
-                    if(dateMatch && dateMatch[0] < todayStr && !t.repCompleted) {
-                        tasks.push({ block: 'Syllabus', description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`, done: false, source: 'repetition', rawId: t.id, date: dateMatch[0], startTime: t.startTime || "10:00", endTime: t.endTime || "11:00" });
-                    }
-                }
-            });
-            tasks.sort((a,b) => (a.date || "").localeCompare(b.date || "") || (a.startTime || "00:00").localeCompare(b.startTime || "00:00"));
-            return tasks;
-        }
-
         function toggleDashboardTaskDone(source, rawId, isChecked) {
             if(source === 'schedule') {
                 toggleWeeklyDone(rawId, isChecked);
@@ -955,13 +751,13 @@
         }
 
         function renderDashboard() {
-            const studied = temas.filter(t => t.read || t.sumup || t.repStage > 0).length;
+            // Precise block percentages: 100% shared among topics in each block, then average across blocks
             const blocksMap = {};
             temas.forEach(t => {
                 if(!blocksMap[t.block]) blocksMap[t.block] = { totalUnits: 0, blockUnitsScoreSum: 0 };
                 blocksMap[t.block].totalUnits++;
                 let pts = (t.read ? 1 : 0) + (t.sumup ? 1 : 0) + Math.min(4, t.repStage || 0);
-                let uFrac = pts / 6;
+                let uFrac = pts / 6; // 0 to 1 fraction per unit
                 blocksMap[t.block].blockUnitsScoreSum += uFrac;
             });
 
@@ -975,6 +771,8 @@
             });
 
             const overallPct = blockNames.length > 0 ? Math.round(sumOfBlockPercentages / blockNames.length) : 0;
+
+            const studied = temas.filter(t => t.read || t.sumup || t.repStage > 0).length;
             const totalMins = logs.reduce((acc, curr) => acc + curr.minutes, 0);
             const totalHours = (totalMins / 60).toFixed(1);
 
@@ -983,6 +781,7 @@
             
             const completedPracticalsCount = practicas.filter(p => p.done).length;
             document.getElementById('stat-practicals-count').innerText = completedPracticalsCount;
+            
             document.getElementById('stat-study-hours').innerText = `${totalHours}h`;
 
             const grid = document.getElementById('dashboard-blocks-grid');
@@ -1024,7 +823,7 @@
             }
 
             const previewContainer = document.getElementById('dashboard-daily-preview');
-            const todayStr = new Date().toISOString().split('T')[0];
+            const todayStr = "2026-10-02";
             const todayTasks = getUnifiedTasksForDate(todayStr);
 
             if(todayTasks.length === 0) {
@@ -1042,28 +841,6 @@
                         <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${t.done ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${t.done ? 'Done' : 'Pending'}</span>
                     </div>
                 `).join('');
-            }
-
-            const overdueContainer = document.getElementById('dashboard-overdue-preview');
-            if (overdueContainer) {
-                const overdueTasks = getOverdueTasks(todayStr);
-
-                if(overdueTasks.length === 0) {
-                    overdueContainer.innerHTML = `<p class="text-xs text-rose-400 py-3 text-center">No overdue tasks. You're all caught up!</p>`;
-                } else {
-                    overdueContainer.innerHTML = overdueTasks.map(t => `
-                        <div class="p-2.5 bg-white/60 rounded-xl border border-rose-100 flex items-center justify-between text-xs">
-                            <div class="flex items-center space-x-2.5 pr-2">
-                                <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleDashboardTaskDone('${t.source}', ${t.rawId}, this.checked)" class="w-4 h-4 text-rose-600 rounded cursor-pointer">
-                                <div>
-                                    <span class="font-bold text-rose-600 mr-1">[${t.block}]</span>
-                                    <span class="text-slate-800">${t.description} <span class="text-[10px] text-rose-500 font-semibold ml-1">(${formatDateDDMMYY(t.date)})</span></span>
-                                </div>
-                            </div>
-                            <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap bg-rose-100 text-rose-800">Overdue</span>
-                        </div>
-                    `).join('');
-                }
             }
         }
 
@@ -1098,166 +875,6 @@
 
         function closeBlockModal() {
             document.getElementById('block-modal').classList.add('hidden');
-        }
-
-        function openSavedSessionsModal() {
-            renderSavedSessionsModalList();
-            document.getElementById('saved-sessions-modal').classList.remove('hidden');
-        }
-
-        function closeSavedSessionsModal() {
-            document.getElementById('saved-sessions-modal').classList.add('hidden');
-        }
-
-        // FULL-TEXT SEARCH ENGINE (Exhaustive text database for all documents & descriptors)
-        const fullTextLegalDatabase = [
-            {
-                section: "1. Official Grading Rubrics (Oposiciones)",
-                title: "A. Written Theme Rubric",
-                text: "Estructura del tema (10%): Índice, Introducción, Desarrollo, Conclusión, Bibliografía. Expresión escrita: Uso adecuado del lenguaje técnico-pedagógico, precisión terminológica, coherencia lingüística, corrección léxica y gramatical. Contenidos específicos (60%): Nivel de profundización, concreción y actualización de los contenidos. Valoración o juicio crítico y fundamentado (10%): Argumentación fundamentada epistemológica, normativa o curricular. Capacidad de ejemplificación y aplicación de los contenidos al contexto escolar y/o profesional (7%). Secuencia lógica y ordenada (7%). Referencias bibliográficas y normativas: Realiza más de tres citas normativas o bibliográficas (6%)."
-            },
-            {
-                section: "1. Official Grading Rubrics (Oposiciones)",
-                title: "B. Teaching Program (Written)",
-                text: "Justificación de la programación didáctica (3%). Expresión escrita: Uso apropiado del lenguaje técnico-pedagógico, precisión terminológica, coherencia lingüística, corrección léxica y gramatical (3%). Contextualización: Descripción del centro educativo, entorno socioeducativo, etapa, nivel, materia, alumnado destinatario y diversidad (3%). Estructura (21%): 13 elementos obligatorios que incluyen introducción, marco legislativo, competencias específicas, saberes básicos, criterios de evaluación, principios pedagógicos, orientaciones metodológicas, situaciones de aprendizaje, procedimientos de evaluación y criterios de calificación, evaluación inicial, atención a la diversidad, materiales y recursos, actividades complementarias y extraescolares, evaluación de la programación, desarrollo de unidades didácticas y bibliografía. Penalización (-10 pts): Si cada unidad didáctica no contiene al menos una Situación de Aprendizaje o si la programación no contiene un mínimo de 12 unidades didácticas se penalizará con -10 puntos."
-            },
-            {
-                section: "1. Official Grading Rubrics (Oposiciones)",
-                title: "C. Unit / Learning Situation Defense & Penalties (Orden 20/2/2026)",
-                text: "Presentación e introducción excelente (4%). Centro de interés motivador (4%). Descripción detallada (4%). Asociación de competencias específicas (4%). Concreción curricular sobresaliente vinculando competencias, descriptores operativos, criterios de evaluación y saberes básicos (5%). Integración de los aprendizajes en diferentes contextos (5%). Secuencia metodológica completa y coherente con actividades, ejercicios de aplicación, temporalización y recursos diversos (12%). Metodología activa, participativa, trabajo individual y cooperativo, perspectiva de género, conexiones sociales y culturales de Andalucía, atención a la diversidad y DUA (16%). Evaluación formativa, integradora, criterios como referentes, instrumentos variados, autoevaluación y evaluación de la práctica docente (20%). Expresión oral, lenguaje técnico-pedagógico, precisión terminológica y comunicación verbal adecuada (15%). Uso adecuado de la pizarra (3%). Finalización y síntesis (1%). Normativa y bibliografía con más de tres citas (3%). Penalizaciones ortográficas (Anexo VII): 1 falta = -0,5 pts; 2 faltas = -1 pt adicional; 3 faltas = -1 pt adicional; 4 faltas = -1,5 pts adicionales; 5 o más faltas (o tildes incorrectas) = -10 puntos sobre la puntuación final de la parte. La repetición de una misma falta cuenta como una sola. Penalizaciones de formato y examen (Anexo VIII): -10 puntos automáticos por nombres, marcas o señales que identifiquen al aspirante (incluyendo no escribir por delante y por detrás en el folio o no hacerlo en formato vertical), no estar paginado en numeración arábiga, utilizar folios no facilitados por el tribunal, o resultado ilegible. Letra Times New Roman de 12 puntos obligatoria en la programación escrita."
-            },
-            {
-                section: "2. Legal Framework & Hierarchy (Andalusia)",
-                title: "Hierarchy of Legal Provisions (Pirámide de Kelsen)",
-                text: "Constitution: Spanish Constitution of 1978 (Approved by Parliament and ratified by referendum). Organic Acts and Acts: L.O. 8/1985 (LODE), Organic Act 2/2006 (LOE) amended by Organic Act 3/2020 (LOMLOE), Act 17/2007 (Education in Andalusia - LEA). Royal Decrees: R.D. 217/2022 (Compulsory Secondary Education - ESO), R.D. 243/2022 (Upper Secondary Education - Bachillerato). Decrees: D. 102/2023 (ESO organisation and curriculum), D. 103/2023 (Bachillerato organisation and curriculum), D. 327/2010 (Secondary-school regulations amended by D. 483/2026). Orders: Orders 30/5/2023 (ESO and Bachillerato amended by Order 31/8/2026), Order 20/8/2010 (school organisation amended by Order 31/8/2026), Order 20/2/2026 (Penalizations). Resolutions and Instructions: Annual implementation and practical application. Official sources: BOE and BOJA."
-            },
-            {
-                section: "3. Complete Decreto 102/2023 & English Curriculum Text Database",
-                title: "Decreto 102/2023 - Articles 1 to 5 (General Provisions & Definitions)",
-                text: "Artículo 1: Objeto y ámbito de aplicación de la ordenación y currículo de la ESO en Andalucía. Artículo 2: La ESO forma parte de la Educación Básica (de 12 a 16 años, prorrogable a 18), obligatoria y gratuita, estructurada en 4 cursos. El 4º curso tiene carácter orientador. Artículo 3: Definiciones clave: Objetivos, Competencias clave (Recomendación del Consejo de la UE de 2018), Competencias específicas (conexión entre clave y saberes básicos), Criterios de evaluación (niveles de desempeño esperados), Saberes básicos (contenidos), Situaciones de aprendizaje, Perfil de salida y Perfil competencial al término de 2º curso. Artículo 4: Principios generales: orientación educativa con perspectiva de género, atención a la diversidad, inclusión educativa basada en el Diseño Universal para el Aprendizaje (DUA), aprendizaje significativo y excelencia educativa."
-            },
-            {
-                section: "3. Complete Decreto 102/2023 & English Curriculum Text Database",
-                title: "Decreto 102/2023 - Article 6 (Pedagogical Principles)",
-                text: "Principios pedagógicos del currículo en Andalucía: a) La lectura constituye un factor fundamental: tiempo diario no inferior a 30 minutos en todos los niveles para el desarrollo de la competencia en comunicación lingüística, debate y oratoria. b) Desarrollo de competencias del Perfil de salida. c) Integración de las TIC. d) Desarrollo sostenible y medio ambiente (Agenda 2030). e) Diseño Universal para el Aprendizaje (DUA) para garantizar la inclusión y accesibilidad universal. f) Inteligencia emocional, empatía y resolución pacífica de conflictos. g) Patrimonio cultural y natural de Andalucía, historia, folclore, flamenco y modalidades lingüísticas andaluzas. h) Promoción de la igualdad de género (Ley 12/2007). i) Proyectos significativos y resolución colaborativa de problemas. j) Razonamiento matemático."
-            },
-            {
-                section: "3. Complete Decreto 102/2023 & English Curriculum Text Database",
-                title: "Decreto 102/2023 - Articles 13, 14 & 15 (Evaluation, Promotion & Titulation)",
-                text: "Artículo 13 (Evaluación): Continua, formativa e integradora. Los referentes son los criterios de evaluación. Se promueve el uso de instrumentos de evaluación variados y adaptados al DUA. Artículo 14 (Promoción): Decisiones colegiadas del equipo docente. Promociona quien supera todas las materias o tiene evaluación negativa en una o dos materias. Programas de refuerzo del aprendizaje obligatorios para materias no superadas. La permanencia en el curso es una medida excepcional (máximo 1 vez por curso y 2 en toda la etapa). Artículo 15 (Título): Graduado en Educación Secundaria Obligatoria para quienes adquieren las competencias clave del Perfil de salida y alcanzan los objetivos de la etapa."
-            },
-            {
-                section: "3. Complete Decreto 102/2023 & English Curriculum Text Database",
-                title: "Decreto 102/2023 - Articles 21 & 23 (Attention to Diversity & Curriculum Diversification)",
-                text: "Artículo 21: Conjunto de actuaciones y medidas educativas para garantizar la respuesta a las necesidades de todo el alumnado en entorno inclusivo. Respuesta educativa para alumnado con necesidades educativas especiales, incorporación tardía y altas capacidades. Artículo 23 (Programa de diversificación curricular): Orientado a la obtención del título de ESO para quienes presentan dificultades relevantes de aprendizaje desde 3º curso, con organización del currículo en ámbitos (Ámbito Lingüístico y Social, Ámbito Científico-Tecnológico) y materias específicas."
-            },
-            {
-                section: "3. Complete Decreto 102/2023 & English Curriculum Text Database",
-                title: "Mapa de Relaciones Curriculares & Descriptores Operativos (Anexo VI)",
-                text: "Mapa de relaciones curriculares ESO y Bachillerato: 1. Objetivos de etapa (logros esperados al finalizar la etapa). 2. Perfil de salida y Competencias Clave (8): Competencia en comunicación lingüística (CCL), Competencia plurilingüe (CP), Competencia matemática y en ciencia, tecnología e ingeniería (STEM), Competencia digital (CD), Competencia personal, social y de aprender a aprender (CPSAA), Competencia ciudadana (CC), Competencia emprendedora (CE), Competencia en conciencia y expresiones culturales (CCEC). Descriptores operativos detallados: STEM1, STEM2, STEM3, STEM4, STEM5, CP1, CP2, CP3, CCL1, CCL2, CCL3, CCL4, CCL5, CD1, CD2, CD3, CD4, CD5, CPSAA1, CPSAA2, CPSAA3, CPSAA4, CPSAA5, CC1, CC2, CC3, CC4, CE1, CE2, CE3, CCEC1, CCEC2, CCEC3, CCEC4."
-            },
-            {
-                section: "3. Complete Decreto 102/2023 & English Curriculum Text Database",
-                title: "Orden 30 May 2023 (Anexo II) - English Curriculum Specific Competences & Descriptores Operativos",
-                text: "Competencias específicas de Lengua Extranjera en ESO y sus descriptores operativos (Perfil de salida): 1. Comprender e interpretar textos orales, escritos y multimodales expresados de forma clara y en lengua estándar (Listening/Reading). Conecta con CCL2, CCL3, CP1, CP2, STEM1, CD1, CPSAA5, CCEC2. Criterios de evaluación 1.1, 1.2, 1.3. 2. Producir textos originales orales, escritos y multimodales de extensión media, sencillos y con organización clara (Speaking/Writing). Conecta con CCL1, CP1, CP2, STEM1, CD2, CPSAA5, CE1, CCEC3. Criterios de evaluación 2.1, 2.2, 2.3. 3. Interactuar con otras personas de manera oral y escrita con creciente autonomía, empleando recursos y cortesía (Interaction). Conecta con CCL5, CP1, CP2, STEM1, CPSAA3, CC3. Criterios de evaluación 3.1, 3.2. 4. Mediar en situaciones cotidianas entre distintas lenguas (Mediation). Conecta con CCL5, CP1, CP2, CP3, STEM1, CPSAA1, CPSAA3, CCEC1. Criterios de evaluación 4.1, 4.2. 5. Ampliar y usar repertorios lingüísticos personales entre distintas lenguas, reflexionando sobre su funcionamiento (Plurilingüismo & Strategic Learning). Conecta con CP2, STEM1, CPSAA1, CPSAA5, CD2. Incluye uso de autoevaluación, coevaluación y Portfolio Europeo de las Lenguas (PEL o e-PEL). Criterios de evaluación 5.1, 5.2, 5.3. 6. Valorar críticamente y adecuarse a la diversidad lingüística, cultural y artística (Intercultural awareness). Conecta con CCL5, CP3, CPSAA1, CPSAA3, CC3, CCEC1. Criterios de evaluación 6.1, 6.2, 6.3."
-            },
-            {
-                section: "3. Complete Decreto 102/2023 & English Curriculum Text Database",
-                title: "Orden 30 May 2023 (Anexo II) - English Curriculum Saberes Básicos (1º a 4º ESO)",
-                text: "Bloque A (Comunicación): LEX.1.A.1 a LEX.4.A.12. Autoconfianza. El error como instrumento de mejora y autorreparación. Estrategias para planificar, ejecutar, controlar y reparar textos. Actividades de mediación en situaciones cotidianas. Funciones comunicativas básicas y de uso común: saludar, despedirse, presentar, describir personas, objetos, lugares, fenómenos y acontecimientos, situar en el tiempo y el espacio, pedir e intercambiar información, dar instrucciones, consejos y órdenes, ofrecer y rechazar ayuda, expresar gustos, emociones, narrar pasados, describir presentes, enunciar futuros, opinión, posibilidad, capacidad, obligación, prohibición, argumentaciones sencillas, hipótesis, suposiciones, incertidumbre, duda, reformular y resumir. Modelos contextuales y géneros discursivos. Unidades lingüísticas y significados (entidad, cantidad, cualidad, espacio, tiempo, afirmación, negación, interrogación, exclamación, relaciones lógicas). Léxico de uso común relativo a identificación personal, relaciones interpersonales, ocio, salud, vida cotidiana, vivienda, clima, tecnologías y formación. Patrones sonoros, acentuales, rítmicos y de entonación. Convenciones ortográficas. Convenciones y estrategias conversacionales (síncrono o asíncrono, tomar y ceder la palabra, debatir). Recursos y estrategias de búsqueda de información (diccionarios, bibliotecas, aulas virtuales, videoconferencias, autoría y veracidad de fuentes). Bloque B (Plurilingüismo): LEX.1.B.1 a LEX.4.B.5. Estrategias y técnicas para responder eficazmente a necesidades comunicativas con fluidez. Estrategias para identificar, organizar, retener, recuperar y utilizar creativamente unidades lingüísticas (léxico, morfosintaxis, patrones sonoros). Herramientas de autoevaluación, coevaluación y autorreparación. Metalenguaje (expresiones y léxico sobre la comunicación y el aprendizaje). Comparación entre lenguas y origen y parentescos. Bloque C (Interculturalidad): LEX.1.C.1 a LEX.4.C.6. Lengua extranjera como comunicación internacional y enriquecimiento personal. Interés en intercambios comunicativos. Patrones culturales y aspectos socioculturales y sociolingüísticos de la vida cotidiana. Convenciones sociales, lenguaje no verbal, cortesía lingüística y etiqueta digital en países de la lengua extranjera. Estrategias para entender y apreciar la diversidad lingüística, cultural y artística atendiendo a valores ecosociales y democráticos. Detección y actuación ante usos discriminatorios del lenguaje verbal y no verbal por motivos de género u origen."
-            },
-            {
-                section: "3. Complete Decreto 102/2023 & English Curriculum Text Database",
-                title: "Orden 30 May 2023 - Anexo VI & Anexo VII (Objetivos de Etapa y Situaciones de Aprendizaje)",
-                text: "Anexo VI: Vinculación de los Objetivos de la etapa (a al k) con el Perfil de salida al término de la enseñanza básica a través de las competencias clave (CCL, CP, STEM, CD, CPSAA, CC, CE, CCEC), incluyendo descriptores específicos como STEM1, STEM2, STEM3, STEM4, STEM5, CP1, CP2, CP3, CCL1, CCL2, CCL3, CCL4, CCL5, CD1, CD2, CD3, CD4, CD5, CPSAA1, CPSAA2, CPSAA3, CPSAA4, CPSAA5, CC1, CC2, CC3, CC4, CE1, CE2, CE3, CCEC1, CCEC2, CCEC3, CCEC4. Anexo VII (Situaciones de Aprendizaje): Herramienta eficaz para integrar elementos curriculares mediante tareas y actividades significativas y relevantes para resolver problemas de forma creativa y cooperativa. Deben plantear un reto o problema de cierta complejidad que implique la movilización integrada de los saberes básicos. Procedimiento de diseño: 1. Localización de un centro de interés. 2. Justificación de la propuesta (Objetivos y Principios de etapa). 3. Descripción del producto final o reto. 4. Concreción curricular (competencias específicas, criterios de evaluación y saberes básicos). 5. Secuenciación didáctica. 6. Principios y pautas del Diseño Universal para el Aprendizaje (DUA). 7. Medidas de atención a la diversidad. 8. Evaluación del proceso de aprendizaje (criterios de evaluación e instrumentos variados). 9. Evaluación de la práctica docente."
-            }
-        ];
-
-        function searchFullLegalDocs() {
-            const query = document.getElementById('legal-full-search').value.toLowerCase().trim();
-            const wrapper = document.getElementById('search-results-wrapper');
-            const list = document.getElementById('search-results-list');
-            const countSpan = document.getElementById('search-count');
-            const sectionsContainer = document.getElementById('legal-sections-container');
-
-            if(query.length === 0) {
-                wrapper.classList.add('hidden');
-                sectionsContainer.classList.remove('hidden');
-                list.innerHTML = '';
-                return;
-            }
-
-            sectionsContainer.classList.add('hidden');
-            wrapper.classList.remove('hidden');
-
-            let matches = [];
-            fullTextLegalDatabase.forEach(item => {
-                const combinedText = (item.section + " " + item.title + " " + item.text).toLowerCase();
-                if(combinedText.includes(query)) {
-                    matches.push(item);
-                }
-            });
-
-            countSpan.innerText = matches.length;
-
-            if(matches.length === 0) {
-                list.innerHTML = `<p class="text-xs text-slate-500 py-6 text-center">No results found in documents for "${query}". Try searching for terms like "STEM2", "CP2", "DUA", "promoción", "30 minutos", or "artículo 6".</p>`;
-                return;
-            }
-
-            list.innerHTML = matches.map(m => {
-                let highlightedText = m.text;
-                const regex = new RegExp(`(${query})`, 'gi');
-                highlightedText = highlightedText.replace(regex, `<mark class="bg-amber-200 text-slate-900 px-1 rounded font-semibold">$1</mark>`);
-
-                return `
-                    <div class="bg-white p-4 rounded-xl border border-indigo-100 shadow-2xs space-y-2">
-                        <div class="flex items-center justify-between border-b pb-1.5">
-                            <h5 class="font-bold text-indigo-900 text-xs">${m.title}</h5>
-                            <span class="text-[10px] bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-semibold">${m.section}</span>
-                        </div>
-                        <p class="text-xs text-slate-700 leading-relaxed">${highlightedText}</p>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function clearFullSearch() {
-            document.getElementById('legal-full-search').value = '';
-            searchFullLegalDocs();
-        }
-
-        function renderSavedSessionsModalList() {
-            const container = document.getElementById('modal-logs-list-container');
-            if(!container) return;
-
-            if(logs.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center col-span-2">No logged study sessions found yet.</p>`;
-                return;
-            }
-
-            container.innerHTML = logs.map(l => `
-                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 flex flex-col justify-between text-xs space-y-2">
-                    <div>
-                        <span class="font-bold text-indigo-600">${formatDateDDMMYY(l.date)}</span> &bull; <span class="font-medium">${l.block}</span> (${l.minutes}m)
-                        <p class="text-slate-600 mt-1 font-medium">${l.notes || 'No notes'}</p>
-                    </div>
-                    <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200">
-                        ${l.sourceRef ? `<button onclick="restoreLogModal(${l.id})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-[11px] transition shadow-2xs"><i class="fa-solid fa-rotate-left mr-1"></i> Restore</button>` : ''}
-                        <button onclick="deleteLogModal(${l.id})" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg text-[11px] transition shadow-2xs"><i class="fa-solid fa-trash-can mr-1"></i> Delete</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function restoreLogModal(logId) {
-            restoreLog(logId);
-            renderSavedSessionsModalList();
-        }
-
-        function deleteLogModal(logId) {
-            deleteLog(logId);
-            renderSavedSessionsModalList();
         }
 
         function saveQuickNotes() {
@@ -1488,6 +1105,12 @@
                     selectBlock += `<option value="${b}" ${p.bloque === b ? 'selected' : ''}>${b}</option>`;
                 });
                 selectBlock += `</select>`;
+
+                let selectType = `<select onchange="actualizarFilaPractica(${p.id}, 'tipo', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white font-bold text-indigo-600">
+                    <option value="A" ${p.tipo === 'A' ? 'selected' : ''}>Type A</option>
+                    <option value="B" ${p.tipo === 'B' ? 'selected' : ''}>Type B</option>
+                    <option value="C" ${p.tipo === 'C' ? 'selected' : ''}>Type C</option>
+                </select>`;
 
                 const startSel = `<select onchange="updatePracticalTimeField(${p.id}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${p.startTime || '09:00'}"`, `value="${p.startTime || '09:00'}" selected`)}</select>`;
                 const endSel = `<select onchange="updatePracticalTimeField(${p.id}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${p.endTime || '11:00'}"`, `value="${p.endTime || '11:00'}" selected`)}</select>`;
@@ -1795,7 +1418,7 @@
                         startTime: p.startTime || "09:00",
                         endTime: p.endTime || "11:00",
                         block: "Practical",
-                        description: `Practical Case ${p.num}${p.tipo} (${p.bloque}):${p.temas || 'Review case'}`,
+                        description: `Practical Case ${p.num}${p.tipo} (${p.bloque}): ${p.temas || 'Review case'}`,
                         done: p.done || false,
                         isAuto: true,
                         rawId: p.id
@@ -1813,13 +1436,22 @@
                             startTime: t.startTime || "10:00",
                             endTime: t.endTime || "11:00",
                             block: "Syllabus",
-                            description: `[Rep ${t.repStage || 1}] ${t.ref} -${t.nombre}`,
+                            description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`,
                             done: t.repCompleted || false,
                             isAuto: true,
                             rawId: t.id
                         });
                     }
                 }
+            });
+
+            // Filter out completed tasks with past dates (prior to today)
+            const todayIsoStr = new Date().toISOString().split('T')[0];
+            masterRows = masterRows.filter(item => {
+                if(item.done && item.date && item.date < todayIsoStr) {
+                    return false; // hide completed past tasks from the weekly schedule
+                }
+                return true;
             });
 
             masterRows.sort((a,b) => {
@@ -1886,7 +1518,7 @@
                                             return `
                                                 <tr class="bg-slate-50/60">
                                                     <td class="p-2.5 font-semibold text-slate-700 text-xs">${formatDateDDMMYY(s.date)}</td>
-                                                    <td class="p-2.5 text-slate-500 text-xs">${s.startTime} -${s.endTime}</td>
+                                                    <td class="p-2.5 text-slate-500 text-xs">${s.startTime} - ${s.endTime}</td>
                                                     <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-800">${s.block}</span></td>
                                                     <td class="p-2.5 text-slate-800 text-xs">${s.description}</td>
                                                     <td class="p-2.5 text-center"><input type="checkbox" ${s.done ? 'checked' : ''} onchange="${toggleFn}" class="w-4 h-4 text-indigo-600 rounded cursor-pointer"></td>
@@ -1929,6 +1561,22 @@
             }
 
             container.innerHTML = htmlContent;
+
+            const logsContainer = document.getElementById('logs-list-container');
+            if(logsContainer) {
+                logsContainer.innerHTML = logs.log = logs.map(l => `
+                    <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex flex-col justify-between text-xs space-y-2">
+                        <div>
+                            <span class="font-bold text-indigo-600">${formatDateDDMMYY(l.date)}</span> &bull; <span class="font-medium">${l.block}</span> (${l.minutes}m)
+                            <p class="text-slate-600 mt-1 font-medium">${l.notes || 'No notes'}</p>
+                        </div>
+                        <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200">
+                            ${l.sourceRef ? `<button onclick="restoreLog(${l.id})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg text-[11px] transition shadow-2xs"><i class="fa-solid fa-rotate-left mr-1"></i> Restore</button>` : ''}
+                            <button onclick="deleteLog(${l.id})" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg text-[11px] transition shadow-2xs"><i class="fa-solid fa-trash-can mr-1"></i> Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
 
             const totalMins = logs.reduce((acc, curr) => acc + curr.minutes, 0);
             document.getElementById('tracker-total-hours').innerText = (totalMins / 60).toFixed(1) + ' h';
@@ -2001,6 +1649,7 @@
 
         function openLogModal() {
             document.getElementById('log-date').valueAsDate = new Date();
+            document.getElementById('log-modal').classList.add('hidden'); // wait, keep modal open
             document.getElementById('log-modal').classList.remove('hidden');
         }
         function closeLogModal() { document.getElementById('log-modal').classList.add('hidden'); }
@@ -2044,28 +1693,6 @@
             }
         }
 
-        function playAlarmSound() {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5 note
-                
-                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + 1.5);
-            } catch(e) {
-                console.log("Audio context prevented or not supported", e);
-            }
-        }
-
         function toggleTimer() {
             if(timerRunning) {
                 clearInterval(timerInterval);
@@ -2081,7 +1708,6 @@
                     } else {
                         clearInterval(timerInterval);
                         timerRunning = false;
-                        playAlarmSound();
                         alert("Pomodoro block completed! Great job preparing.");
                         logs.push({
                             id: Date.now(),
@@ -2108,32 +1734,6 @@
             const btn = document.getElementById('dash-timer-btn');
             if(btn) btn.innerText = "Start Timer";
         }
-
-        // PASSWORD PROTECTION & LOGOFF LOGIC
-        function checkPassword(e) {
-            e.preventDefault();
-            const inputVal = document.getElementById('page-password').value;
-            const mySecretPassword = "Soyanita_2026"; 
-
-            if (inputVal === mySecretPassword) {
-                document.getElementById('auth-modal').classList.add('hidden');
-                localStorage.setItem('opos_authenticated', 'true');
-            } else {
-                document.getElementById('auth-error').classList.remove('hidden');
-            }
-        }
-
-        function logOff() {
-            localStorage.removeItem('opos_authenticated');
-            location.reload();
-        }
-
-        // Check authentication immediately
-        if (localStorage.getItem('opos_authenticated') === 'true') {
-            const authModal = document.getElementById('auth-modal');
-            if (authModal) authModal.classList.add('hidden');
-        }
     </script>
 </body>
 </html>
-    
