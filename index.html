@@ -832,7 +832,24 @@
             if(tabId === 'schedule') renderTracker();
         }
 
+        // Recalculate every pending repetition from the initial study date, so the schedule is always consistent
+        function resyncRepetitions() {
+            temas.forEach(t => {
+                if(t.fecha && t.repStage) calcularSiguienteRepeticion(t);
+                else if(!t.fecha) { t.repStage = 0; t.nextSp = "Pending"; }
+            });
+        }
+
+        function renderAllViews() {
+            renderDashboard();
+            renderizarTemas();
+            renderizarPracticas();
+            renderDailyPlan();
+            renderTracker();
+        }
+
         window.onload = function() {
+            resyncRepetitions();
             document.getElementById('quick-notes').value = quickNotes;
             renderDashboard();
             renderizarTemas();
@@ -911,7 +928,8 @@
 
         window.addEventListener('firebase-ready', async () => {
             await loadFromCloud();
-            renderDashboard();
+            resyncRepetitions();
+            renderAllViews();
         });
 
         function getUnifiedTasksForDate(targetDateStr) {
@@ -977,8 +995,7 @@
             temas.forEach(t => {
                 if(!blocksMap[t.block]) blocksMap[t.block] = { totalUnits: 0, blockUnitsScoreSum: 0 };
                 blocksMap[t.block].totalUnits++;
-                let pts = (t.read ? 1 : 0) + (t.sumup ? 1 : 0) + Math.min(4, t.repStage || 0);
-                let uFrac = pts / 6;
+                let uFrac = unitProgressFrac(t);
                 blocksMap[t.block].blockUnitsScoreSum += uFrac;
             });
 
@@ -1093,8 +1110,7 @@
             const blockUnits = temas.filter(t => t.block === blockName);
 
             list.innerHTML = blockUnits.map(u => {
-                let pts = (u.read ? 1 : 0) + (u.sumup ? 1 : 0) + Math.min(4, u.repStage);
-                let pPct = Math.min(100, Math.round((pts / 6) * 100));
+                let pPct = Math.round(unitProgressFrac(u) * 100);
                 let badgeText = `${pPct}%`;
                 let badgeClass = pPct === 100 ? 'bg-emerald-100 text-emerald-800' : (pPct > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-600');
                 return `
@@ -1421,9 +1437,20 @@
             const tema = temas.find(t => t.id === id);
             if(!tema) return;
             tema[campo] = valor;
-            if(campo === 'fecha' && valor && (tema.repStage === 0 || !tema.repStage)) {
-                tema.repStage = 1;
+            if(campo === 'fecha') {
+                if(valor) {
+                    // Moving the initial date shifts the whole repetition schedule (like the Notion formula)
+                    if(!tema.repStage) tema.repStage = 1;
+                    calcularSiguienteRepeticion(tema);
+                } else {
+                    tema.repStage = 0;
+                    tema.nextSp = "Pending";
+                }
+                renderDailyPlan(); renderTracker(); renderDashboard();
+            } else if(campo === 'level' && tema.fecha && tema.repStage) {
+                // Changing the difficulty also recalculates the intervals
                 calcularSiguienteRepeticion(tema);
+                renderDailyPlan(); renderTracker(); renderDashboard();
             }
             saveAll(true);
             renderizarTemas();
@@ -1441,15 +1468,30 @@
             renderizarTemas();
         }
 
+        // Every repetition date is counted from the initial study date, so moving that date moves them all
+        // Unit progress: read (1) + summary (1) + completed repetitions (up to 6) = 8 points
+        function unitProgressFrac(t) {
+            const completedReps = Math.min(6, Math.max(0, (t.repStage || 0) - 1));
+            return ((t.read ? 1 : 0) + (t.sumup ? 1 : 0) + completedReps) / 8;
+        }
+
+        function calcularFechasRepeticion(tema) {
+            if(!tema.fecha) return [];
+            const intervalos = [1, 3, 7, 15, 30, 60];
+            return intervalos.map((d, i) => {
+                let dias = d;
+                if(tema.level === 'Difficult') dias = Math.max(1, Math.ceil(dias * 0.5));
+                if(tema.level === 'Easy') dias = Math.floor(dias * 1.5);
+                const [y, m, day] = tema.fecha.split('-').map(Number);
+                const dt = new Date(Date.UTC(y, m - 1, day + dias));
+                return { stage: i + 1, date: dt.toISOString().split('T')[0] };
+            });
+        }
+
         function calcularSiguienteRepeticion(tema) {
-            let baseDate = new Date(tema.fecha || new Date());
-            const intervalos = [1, 3, 7, 15, 30, 60, 90];
             const currentStage = tema.repStage || 1;
-            let dias = intervalos[currentStage - 1] || 120;
-            if(tema.level === 'Difficult') dias = Math.max(1, Math.floor(dias * 0.5));
-            if(tema.level === 'Easy') dias = Math.floor(dias * 1.5);
-            baseDate.setDate(baseDate.getDate() + dias);
-            tema.nextSp = currentStage <= 6 ? `${baseDate.toISOString().split('T')[0]} [Rep ${currentStage}]` : "Mastered!";
+            const fechas = calcularFechasRepeticion(tema);
+            tema.nextSp = (currentStage <= 6 && fechas[currentStage - 1]) ? `${fechas[currentStage - 1].date} [Rep ${currentStage}]` : (currentStage > 6 ? "Mastered!" : "Pending");
         }
 
         function limpiarTema(id) {
@@ -1476,8 +1518,7 @@
 
             filtered.forEach(tema => {
                 const tr = document.createElement('tr');
-                let puntos = (tema.read ? 1 : 0) + (tema.sumup ? 1 : 0) + Math.min(4, tema.repStage || 0);
-                let porcentaje = Math.min(100, Math.round((puntos / 6) * 100));
+                let porcentaje = Math.round(unitProgressFrac(tema) * 100);
                 const col = blockColors[tema.block] || { badge: "bg-slate-100 text-slate-700" };
 
                 tr.innerHTML = `
@@ -1489,6 +1530,11 @@
                     <td class="p-3">
                         <span class="text-xs font-bold text-indigo-600">${tema.nextSp.replace(/^\d{4}-\d{2}-\d{2}/, m => formatDateDDMMYY(m))}</span>
                         ${tema.nextSp !== "Mastered!" ? `<button class="ml-2 px-2 py-0.5 bg-emerald-600 text-white rounded text-xs font-bold hover:bg-emerald-700" onclick="registrarRepaso(${tema.id})">+Rep</button>` : ''}
+                        ${tema.fecha ? `<div class="mt-1 text-[10px] text-slate-400 leading-snug">${calcularFechasRepeticion(tema).map(r => {
+                            const doneRep = r.stage < (tema.repStage || 1);
+                            const current = r.stage === (tema.repStage || 1);
+                            return `<span class="${doneRep ? 'line-through' : current ? 'text-indigo-600 font-bold' : ''}">R${r.stage} ${formatDateDDMMYY(r.date)}</span>`;
+                        }).join(' · ')}</div>` : ''}
                     </td>
                     <td class="p-3">
                         <select onchange="actualizarCampo(${tema.id}, 'level', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white font-medium">
@@ -1905,12 +1951,19 @@
         }
         function updateRepDate(id, val) {
             const tema = temas.find(t => t.id === id);
-            if(tema) {
-                tema.nextSp = val + ` [Rep ${tema.repStage || 1}]`;
-                saveAll(true);
-                renderDailyPlan();
-                renderizarTemas();
-            }
+            if(!tema || !val || !tema.fecha) return;
+            const fechas = calcularFechasRepeticion(tema);
+            const current = fechas[(tema.repStage || 1) - 1];
+            if(!current) return;
+            const toUTC = d => { const [y, m, dd] = d.split('-').map(Number); return Date.UTC(y, m - 1, dd); };
+            const deltaDays = Math.round((toUTC(val) - toUTC(current.date)) / 86400000);
+            const [y, m, d] = tema.fecha.split('-').map(Number);
+            tema.fecha = new Date(Date.UTC(y, m - 1, d + deltaDays)).toISOString().split('T')[0];
+            calcularSiguienteRepeticion(tema);
+            saveAll(true);
+            renderDailyPlan();
+            renderTracker();
+            renderizarTemas();
         }
         function updateRepTimeField(id, field, val) {
             const tema = temas.find(t => t.id === id);
