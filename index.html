@@ -14,9 +14,10 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyCRASuU5amajWJbgmS7x48Z10x5jCVHM2w",
+            apiKey: "AIzaSyDyd-dcc3lQYWjcj_Efo_AI5tLClz4KS8o",
             authDomain: "control-de-asistencia-idiomas.firebaseapp.com",
             databaseURL: "https://control-de-asistencia-idiomas-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "control-de-asistencia-idiomas",
@@ -28,13 +29,24 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        window.db = db;
-        window.rtdbRef = ref;
-        window.rtdbSet = set;
-        window.rtdbGet = get;
-        window.rtdbChild = child;
-        
-        window.dispatchEvent(new Event('firebase-ready'));
+        // --- Google sign-in: the cloud is only used after signing in ---
+        const auth = getAuth(app);
+        window.iniciarSesionGoogle = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(e => {
+            const m = document.getElementById('loginMensaje'); if (m) m.textContent = 'Sign-in failed: ' + e.message;
+        });
+        onAuthStateChanged(auth, (user) => {
+            const pantalla = document.getElementById('pantallaLogin');
+            if (!user) { if (pantalla) pantalla.style.display = 'flex'; return; }
+            if (pantalla) pantalla.style.display = 'none';
+            if (!window.db) {
+                window.db = db;
+                window.rtdbRef = ref;
+                window.rtdbSet = set;
+                window.rtdbGet = get;
+                window.rtdbChild = child;
+                window.dispatchEvent(new Event('firebase-ready'));
+            }
+        });
     </script>
 
     <style>
@@ -44,6 +56,14 @@
     </style>
 </head>
 <body class="h-full bg-slate-50 text-slate-800 antialiased flex flex-col">
+<div id="pantallaLogin" style="position:fixed; inset:0; z-index:9999; background:#f1f5f9; display:flex; align-items:center; justify-content:center; padding:16px; font-family:Inter, system-ui, sans-serif;">
+  <div style="background:white; border-radius:14px; padding:32px 28px; max-width:380px; width:100%; text-align:center; box-shadow:0 10px 30px rgba(15,23,42,.12);">
+    <h2 style="margin:0 0 6px; color:#1e3a8a; font-size:1.25rem; font-weight:700;">Oposiciones Planning</h2>
+    <p id="loginMensaje" style="color:#64748b; font-size:.9rem; margin:0 0 20px;">Sign in with your Google account to load your plan.</p>
+    <button onclick="iniciarSesionGoogle()" style="width:100%; background:#2563eb; color:white; border:none; border-radius:10px; padding:12px; font-weight:600; font-size:.95rem; cursor:pointer;">Sign in with Google</button>
+  </div>
+</div>
+
 
     <!-- PASSWORD PROTECTION OVERLAY -->
     <div id="auth-modal" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
@@ -884,6 +904,12 @@
 
         async function syncToCloud(manual = false) {
             if(!window.db) return;
+            // 🔒 SAFETY LOCK: never write to the cloud before the cloud data has been loaded
+            if(!window.cloudLoaded) {
+                const b = document.getElementById('syncStatus'); if(b) b.innerText = "🔒 Not saved to cloud (cloud not loaded yet)";
+                if(manual) alert("🔒 Cloud data has not been loaded yet, so nothing was saved to avoid overwriting it. Reload the page and try again.");
+                return;
+            }
             const badge = document.getElementById('syncStatus');
             if(badge) badge.innerText = "⏳ Saving...";
             
@@ -923,6 +949,7 @@
                     if(data.quickNotes) { quickNotes = data.quickNotes; document.getElementById('quick-notes').value = quickNotes; }
                     saveAll(false);
                 }
+                window.cloudLoaded = true;
             } catch(e) { console.error("Error loading cloud data:", e); }
         }
 
