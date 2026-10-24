@@ -758,6 +758,10 @@
             "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"
         ];
 
+        function timeOpts(v) {
+            const list = (v && !availableTimes.includes(v)) ? [...availableTimes, v].sort() : availableTimes;
+            return list.map(t => `<option value="${t}" ${t === v ? 'selected' : ''}>${t}</option>`).join('');
+        }
         const scheduleBlocks = ["Syllabus", "Practical", "Teaching Units", "Oral Defence"];
 
         const temarioCompleto = [
@@ -982,12 +986,13 @@
                 const data = await r.json();
                 window.calendarEvents = (data.items || [])
                     .filter(ev => ev.status !== 'cancelled' && !/esther/i.test(ev.summary || ''))
+                    .filter(ev => !weeklySchedule.some(s => s.gcalId === ev.id))
                     .map((ev, i) => {
                         const allDay = !!(ev.start && ev.start.date);
                         const s = allDay ? null : new Date(ev.start.dateTime);
                         const e = allDay ? null : new Date(ev.end.dateTime);
                         return {
-                            id: 'gcal_' + i, rawId: i,
+                            id: 'gcal_' + i, rawId: i, gcalId: ev.id,
                             date: allDay ? ev.start.date : localDateStr(s),
                             startTime: allDay ? 'All day' : `${pad2(s.getHours())}:${pad2(s.getMinutes())}`,
                             endTime: allDay ? '' : `${pad2(e.getHours())}:${pad2(e.getMinutes())}`,
@@ -1003,6 +1008,25 @@
             }
         }
         window.cargarEventosCalendario = cargarEventosCalendario;
+
+        // Ticking or editing a Calendar event copies it into the planner as a normal, editable slot
+        function adoptarEventoCalendario(idx, markDone, block) {
+            const ev = (window.calendarEvents || []).find(e => e.rawId === idx);
+            if (!ev) return;
+            const id = Date.now();
+            const allDay = ev.startTime === 'All day';
+            weeklySchedule.push({
+                id, date: ev.date,
+                startTime: allDay ? '09:00' : ev.startTime,
+                endTime: allDay ? '10:00' : ev.endTime,
+                block: block || 'Syllabus', description: ev.description,
+                done: false, gcalId: ev.gcalId
+            });
+            window.calendarEvents = window.calendarEvents.filter(e => e.rawId !== idx);
+            if (markDone) { toggleWeeklyDone(id, true); }
+            else { saveAll(true); renderAllViews(); }
+        }
+        window.adoptarEventoCalendario = adoptarEventoCalendario;
 
         async function loadFromCloud() {
             if(!window.db) return;
@@ -1166,7 +1190,7 @@
                 previewContainer.innerHTML = todayTasks.map(t => `
                     <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs">
                         <div class="flex items-center space-x-2.5 pr-2">
-                            ${t.source === 'calendar' ? '<span class="w-4 text-center" title="Google Calendar">📅</span>' : `<input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleDashboardTaskDone('${t.source}', ${t.rawId}, this.checked)" class="w-4 h-4 text-indigo-600 rounded cursor-pointer">`}
+                            ${t.source === 'calendar' ? `<input type="checkbox" onchange="adoptarEventoCalendario(${t.rawId}, true)" title="Mark as done (adds it to your study hours)" class="w-4 h-4 text-sky-600 rounded cursor-pointer">` : `<input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleDashboardTaskDone('${t.source}', ${t.rawId}, this.checked)" class="w-4 h-4 text-indigo-600 rounded cursor-pointer">`}
                             <div>
                                 <span class="font-bold text-indigo-600 mr-1">[${t.block}]</span>
                                 <span class="text-slate-800">${t.description}</span>
@@ -1987,19 +2011,24 @@
                     tr.innerHTML = `
                         <td class="p-3 font-semibold text-slate-900 text-xs">${d.date}</td>
                         <td class="p-3 text-xs text-slate-700">${d.startTime}${d.endTime ? ' - ' + d.endTime : ''}</td>
-                        <td class="p-3"><span class="font-medium text-xs bg-sky-100 text-sky-800 px-2 py-1 rounded">📅 Google Calendar</span></td>
+                        <td class="p-3">
+                            <select onchange="adoptarEventoCalendario(${d.rawId}, false, this.value)" title="Choose a block" class="p-1 border border-sky-200 rounded text-xs bg-sky-50 text-sky-800 font-medium">
+                                <option value="" selected>📅 Choose block…</option>
+                                ${scheduleBlocks.map(b => `<option value="${b}">${b}</option>`).join('')}
+                            </select>
+                        </td>
                         <td class="p-3 font-medium text-slate-800 text-xs">${d.description}</td>
-                        <td class="p-3 text-center text-slate-300">–</td>
-                        <td class="p-3 text-center text-[10px] text-slate-400">edit in Calendar</td>
+                        <td class="p-3 text-center"><input type="checkbox" onchange="adoptarEventoCalendario(${d.rawId}, true)" title="Mark as done (adds it to your study hours)" class="w-4 h-4 text-sky-600 rounded cursor-pointer"></td>
+                        <td class="p-3 text-center"><button onclick="adoptarEventoCalendario(${d.rawId}, false)" title="Edit times, block or description" class="px-2 py-1 bg-sky-600 text-white rounded hover:bg-sky-700 text-xs font-bold"><i class="fa-solid fa-pen"></i></button></td>
                     `;
                 } else if(d.source === 'practical') {
                     tr.innerHTML = `
                         <td class="p-3 font-semibold text-slate-900"><input type="date" value="${d.date}" onchange="updatePracticalDateField(${d.rawId}, this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white"></td>
                         <td class="p-3">
                             <div class="flex items-center space-x-1">
-                                <select onchange="updatePracticalTimeField(${d.rawId}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${d.startTime}"`, `value="${d.startTime}" selected`)}</select>
+                                <select onchange="updatePracticalTimeField(${d.rawId}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOpts(d.startTime)}</select>
                                 <span class="text-slate-400">-</span>
-                                <select onchange="updatePracticalTimeField(${d.rawId}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${d.endTime}"`, `value="${d.endTime}" selected`)}</select>
+                                <select onchange="updatePracticalTimeField(${d.rawId}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOpts(d.endTime)}</select>
                             </div>
                         </td>
                         <td class="p-3"><span class="font-medium text-xs bg-violet-50 text-violet-700 px-2 py-1 rounded">Practical</span></td>
@@ -2012,9 +2041,9 @@
                         <td class="p-3 font-semibold text-slate-900"><input type="date" value="${d.date}" onchange="updateRepDate(${d.rawId}, this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white"></td>
                         <td class="p-3">
                             <div class="flex items-center space-x-1">
-                                <select onchange="updateRepTimeField(${d.rawId}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${d.startTime}"`, `value="${d.startTime}" selected`)}</select>
+                                <select onchange="updateRepTimeField(${d.rawId}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOpts(d.startTime)}</select>
                                 <span class="text-slate-400">-</span>
-                                <select onchange="updateRepTimeField(${d.rawId}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${d.endTime}"`, `value="${d.endTime}" selected`)}</select>
+                                <select onchange="updateRepTimeField(${d.rawId}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOpts(d.endTime)}</select>
                             </div>
                         </td>
                         <td class="p-3"><span class="font-medium text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded">Syllabus</span></td>
@@ -2027,9 +2056,9 @@
                         <td class="p-3 font-semibold text-slate-900"><input type="date" value="${d.date}" onchange="updateDailyField(${d.rawId}, 'date', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white"></td>
                         <td class="p-3">
                             <div class="flex items-center space-x-1">
-                                <select onchange="updateDailyField(${d.rawId}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${d.startTime}"`, `value="${d.startTime}" selected`)}</select>
+                                <select onchange="updateDailyField(${d.rawId}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOpts(d.startTime)}</select>
                                 <span class="text-slate-400">-</span>
-                                <select onchange="updateDailyField(${d.rawId}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${d.endTime}"`, `value="${d.endTime}" selected`)}</select>
+                                <select onchange="updateDailyField(${d.rawId}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOpts(d.endTime)}</select>
                             </div>
                         </td>
                         <td class="p-3">
@@ -2146,6 +2175,8 @@
                 }
             });
 
+            (window.calendarEvents || []).forEach(ev => masterRows.push({ ...ev, isCal: true }));
+
             const showDoneWeekly = document.getElementById('showDoneWeekly')?.checked;
             const doneWeeklyCountEl = document.getElementById('doneWeeklyCount');
             if(doneWeeklyCountEl) doneWeeklyCountEl.innerText = masterRows.filter(r => r.done).length;
@@ -2209,6 +2240,23 @@
                                 </thead>
                                 <tbody class="divide-y divide-slate-100">
                                     ${rows.map(s => {
+                                        if(s.isCal) {
+                                            return `
+                                                <tr class="bg-sky-50/40">
+                                                    <td class="p-2.5 font-semibold text-slate-700 text-xs">${formatDateDDMMYY(s.date)}</td>
+                                                    <td class="p-2.5 text-slate-600 text-xs">${s.startTime}${s.endTime ? ' - ' + s.endTime : ''}</td>
+                                                    <td class="p-2.5">
+                                                        <select onchange="adoptarEventoCalendario(${s.rawId}, false, this.value)" title="Choose a block" class="p-1 border border-sky-200 rounded text-xs bg-sky-50 text-sky-800 font-medium">
+                                                            <option value="" selected>📅 Choose block…</option>
+                                                            ${scheduleBlocks.map(b => `<option value="${b}">${b}</option>`).join('')}
+                                                        </select>
+                                                    </td>
+                                                    <td class="p-2.5 text-slate-800 text-xs">${s.description}</td>
+                                                    <td class="p-2.5 text-center"><input type="checkbox" onchange="adoptarEventoCalendario(${s.rawId}, true)" title="Mark as done (adds it to your study hours)" class="w-4 h-4 text-sky-600 rounded cursor-pointer"></td>
+                                                    <td class="p-2.5 text-center"><button onclick="adoptarEventoCalendario(${s.rawId}, false)" title="Edit times, block or description" class="px-2 py-1 bg-sky-600 text-white rounded hover:bg-sky-700 text-xs font-bold"><i class="fa-solid fa-pen"></i></button></td>
+                                                </tr>
+                                            `;
+                                        }
                                         if(s.isAuto) {
                                             const isRep = s.id.startsWith('rep_');
                                             const toggleFn = isRep ? `toggleRepDone(${s.rawId}, this.checked)` : `togglePracticalDone(${s.rawId}, this.checked)`;
@@ -2230,9 +2278,9 @@
                                                 </td>
                                                 <td class="p-2.5">
                                                     <div class="flex items-center space-x-1">
-                                                        <select onchange="updateWeeklySlot(${s.id}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${s.startTime}"`, `value="${s.startTime}" selected`)}</select>
+                                                        <select onchange="updateWeeklySlot(${s.id}, 'startTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOpts(s.startTime)}</select>
                                                         <span class="text-slate-400">-</span>
-                                                        <select onchange="updateWeeklySlot(${s.id}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOptions.replace(`value="${s.endTime}"`, `value="${s.endTime}" selected`)}</select>
+                                                        <select onchange="updateWeeklySlot(${s.id}, 'endTime', this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white">${timeOpts(s.endTime)}</select>
                                                     </div>
                                                 </td>
                                                 <td class="p-2.5">
