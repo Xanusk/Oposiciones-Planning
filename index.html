@@ -34,6 +34,19 @@
         window.iniciarSesionGoogle = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(e => {
             const m = document.getElementById('loginMensaje'); if (m) m.textContent = 'Sign-in failed: ' + e.message;
         });
+        window.conectarCalendario = async () => {
+            const prov = new GoogleAuthProvider();
+            prov.addScope('https://www.googleapis.com/auth/calendar.readonly');
+            try {
+                const res = await signInWithPopup(auth, prov);
+                const cred = GoogleAuthProvider.credentialFromResult(res);
+                if (cred && cred.accessToken) {
+                    try { sessionStorage.setItem('gcal_token', JSON.stringify({ t: cred.accessToken, exp: Date.now() + 55 * 60 * 1000 })); } catch (e) {}
+                    window._gcalTokenMem = { t: cred.accessToken, exp: Date.now() + 55 * 60 * 1000 };
+                    if (window.cargarEventosCalendario) window.cargarEventosCalendario();
+                }
+            } catch (e) { alert('Could not connect Google Calendar: ' + e.message); }
+        };
         onAuthStateChanged(auth, (user) => {
             const pantalla = document.getElementById('pantallaLogin');
             if (!user) { if (pantalla) pantalla.style.display = 'flex'; return; }
@@ -101,6 +114,7 @@
                 <button onclick="syncToCloud(true)" class="hidden sm:inline-flex items-center px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition shadow-sm">
                     <i class="fa-solid fa-rotate mr-2"></i> Sync Now
                 </button>
+                <button id="gcalStatus" onclick="conectarCalendario()" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium transition shadow-sm" title="Show your Google Calendar events in the Daily Plan">📅 Connect Calendar</button>
                 <a href="https://notebook.google.com/notebook/de4ed6e6-c083-4c7d-bf6b-cf6239e5c10f" target="_blank" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium transition shadow-sm">
                     <i class="fa-solid fa-robot mr-2"></i> NotebookLM
                 </a>
@@ -934,6 +948,57 @@
             }
         }
 
+        // ---------- GOOGLE CALENDAR (read-only) ----------
+        window.calendarEvents = [];
+        function gcalToken() {
+            const m = window._gcalTokenMem;
+            if (m && m.exp > Date.now()) return m.t;
+            try { const o = JSON.parse(sessionStorage.getItem('gcal_token') || 'null'); return (o && o.exp > Date.now()) ? o.t : null; } catch (e) { return null; }
+        }
+        const pad2 = n => String(n).padStart(2, '0');
+        const localDateStr = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+        async function cargarEventosCalendario() {
+            const tok = gcalToken();
+            const btn = document.getElementById('gcalStatus');
+            if (!tok) { if (btn) btn.innerText = '📅 Connect Calendar'; return; }
+            const from = new Date(); from.setDate(from.getDate() - 14);
+            const to = new Date(); to.setDate(to.getDate() + 60);
+            const url = 'https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime&maxResults=500'
+                + '&timeMin=' + encodeURIComponent(from.toISOString()) + '&timeMax=' + encodeURIComponent(to.toISOString());
+            try {
+                const r = await fetch(url, { headers: { Authorization: 'Bearer ' + tok } });
+                if (r.status === 401) {
+                    try { sessionStorage.removeItem('gcal_token'); } catch (e) {}
+                    window._gcalTokenMem = null;
+                    if (btn) btn.innerText = '📅 Reconnect Calendar';
+                    return;
+                }
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                const data = await r.json();
+                window.calendarEvents = (data.items || [])
+                    .filter(ev => ev.status !== 'cancelled' && !/esther/i.test(ev.summary || ''))
+                    .map((ev, i) => {
+                        const allDay = !!(ev.start && ev.start.date);
+                        const s = allDay ? null : new Date(ev.start.dateTime);
+                        const e = allDay ? null : new Date(ev.end.dateTime);
+                        return {
+                            id: 'gcal_' + i, rawId: i,
+                            date: allDay ? ev.start.date : localDateStr(s),
+                            startTime: allDay ? 'All day' : `${pad2(s.getHours())}:${pad2(s.getMinutes())}`,
+                            endTime: allDay ? '' : `${pad2(e.getHours())}:${pad2(e.getMinutes())}`,
+                            block: 'Google Calendar', description: ev.summary || '(no title)',
+                            done: false, source: 'calendar'
+                        };
+                    });
+                if (btn) btn.innerText = '📅 Calendar ✓ (' + window.calendarEvents.length + ')';
+                renderAllViews();
+            } catch (e) {
+                console.error('Calendar error:', e);
+                if (btn) btn.innerText = '📅 Calendar error';
+            }
+        }
+        window.cargarEventosCalendario = cargarEventosCalendario;
+
         async function loadFromCloud() {
             if(!window.db) return;
             try {
@@ -957,6 +1022,7 @@
             await loadFromCloud();
             resyncRepetitions();
             renderAllViews();
+            cargarEventosCalendario();
         });
 
         function getUnifiedTasksForDate(targetDateStr) {
@@ -977,6 +1043,7 @@
                     }
                 }
             });
+            (window.calendarEvents || []).forEach(ev => { if (ev.date === targetDateStr) tasks.push(ev); });
             tasks.sort((a,b) => (a.startTime || "00:00").localeCompare(b.startTime || "00:00"));
             return tasks;
         }
@@ -1094,7 +1161,7 @@
                 previewContainer.innerHTML = todayTasks.map(t => `
                     <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-xs">
                         <div class="flex items-center space-x-2.5 pr-2">
-                            <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleDashboardTaskDone('${t.source}', ${t.rawId}, this.checked)" class="w-4 h-4 text-indigo-600 rounded cursor-pointer">
+                            ${t.source === 'calendar' ? '<span class="w-4 text-center" title="Google Calendar">📅</span>' : `<input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleDashboardTaskDone('${t.source}', ${t.rawId}, this.checked)" class="w-4 h-4 text-indigo-600 rounded cursor-pointer">`}
                             <div>
                                 <span class="font-bold text-indigo-600 mr-1">[${t.block}]</span>
                                 <span class="text-slate-800">${t.description}</span>
@@ -1875,6 +1942,8 @@
                 }
             });
 
+            (window.calendarEvents || []).forEach(ev => combinedTasks.push(ev));
+
             let filtered = combinedTasks;
             if(mode === 'date') {
                 filtered = combinedTasks.filter(d => d.date === selectedDate);
@@ -1908,7 +1977,17 @@
 
             filtered.forEach(d => {
                 const tr = document.createElement('tr');
-                if(d.source === 'practical') {
+                if(d.source === 'calendar') {
+                    tr.className = 'bg-sky-50/40';
+                    tr.innerHTML = `
+                        <td class="p-3 font-semibold text-slate-900 text-xs">${d.date}</td>
+                        <td class="p-3 text-xs text-slate-700">${d.startTime}${d.endTime ? ' - ' + d.endTime : ''}</td>
+                        <td class="p-3"><span class="font-medium text-xs bg-sky-100 text-sky-800 px-2 py-1 rounded">📅 Google Calendar</span></td>
+                        <td class="p-3 font-medium text-slate-800 text-xs">${d.description}</td>
+                        <td class="p-3 text-center text-slate-300">–</td>
+                        <td class="p-3 text-center text-[10px] text-slate-400">edit in Calendar</td>
+                    `;
+                } else if(d.source === 'practical') {
                     tr.innerHTML = `
                         <td class="p-3 font-semibold text-slate-900"><input type="date" value="${d.date}" onchange="updatePracticalDateField(${d.rawId}, this.value)" class="p-1 border border-slate-200 rounded text-xs bg-white"></td>
                         <td class="p-3">
