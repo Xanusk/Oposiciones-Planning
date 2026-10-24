@@ -1027,6 +1027,11 @@
         window.cargarEventosCalendario = cargarEventosCalendario;
 
         // Ticking or editing a Calendar event copies it into the planner as a normal, editable slot
+        // Practicals → Practical; everything else (topics, readings, revisions, Topic Labs) → Syllabus
+        function bloqueAutoCalendario(desc) {
+            return /practi|jeopardy/i.test(desc || '') ? 'Practical' : 'Syllabus';
+        }
+        window.bloqueAutoCalendario = bloqueAutoCalendario;
         function adoptarEventoCalendario(idx, markDone, block) {
             const ev = (window.calendarEvents || []).find(e => e.rawId === idx);
             if (!ev) return;
@@ -1036,7 +1041,7 @@
                 id, date: ev.date,
                 startTime: allDay ? '09:00' : ev.startTime,
                 endTime: allDay ? '10:00' : ev.endTime,
-                block: block || 'Syllabus', description: ev.description,
+                block: block || bloqueAutoCalendario(ev.description), description: ev.description,
                 done: false, gcalId: ev.gcalId
             });
             window.calendarEvents = window.calendarEvents.filter(e => e.rawId !== idx);
@@ -2029,8 +2034,7 @@
                         <td class="p-3 text-xs text-slate-700">${d.startTime}${d.endTime ? ' - ' + d.endTime : ''}</td>
                         <td class="p-3">
                             <select onchange="adoptarEventoCalendario(${d.rawId}, false, this.value)" title="Choose a block" class="p-1 border border-sky-200 rounded text-xs bg-sky-50 text-sky-800 font-medium">
-                                <option value="" selected>📅 Choose block…</option>
-                                ${scheduleBlocks.map(b => `<option value="${b}">${b}</option>`).join('')}
+                                ${scheduleBlocks.map(b => `<option value="${b}" ${b === bloqueAutoCalendario(d.description) ? 'selected' : ''}>📅 ${b}</option>`).join('')}
                             </select>
                         </td>
                         <td class="p-3 font-medium text-slate-800 text-xs">${d.description}</td>
@@ -2263,8 +2267,7 @@
                                                     <td class="p-2.5 text-slate-600 text-xs">${s.startTime}${s.endTime ? ' - ' + s.endTime : ''}</td>
                                                     <td class="p-2.5">
                                                         <select onchange="adoptarEventoCalendario(${s.rawId}, false, this.value)" title="Choose a block" class="p-1 border border-sky-200 rounded text-xs bg-sky-50 text-sky-800 font-medium">
-                                                            <option value="" selected>📅 Choose block…</option>
-                                                            ${scheduleBlocks.map(b => `<option value="${b}">${b}</option>`).join('')}
+                                                            ${scheduleBlocks.map(b => `<option value="${b}" ${b === bloqueAutoCalendario(s.description) ? 'selected' : ''}>📅 ${b}</option>`).join('')}
                                                         </select>
                                                     </td>
                                                     <td class="p-2.5 text-slate-800 text-xs">${s.description}</td>
