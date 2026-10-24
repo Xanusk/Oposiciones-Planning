@@ -970,7 +970,7 @@
             const tok = gcalToken();
             const btn = document.getElementById('gcalStatus');
             if (!tok) { gcalEstado('bg-slate-300', 'Connect Google Calendar'); return; }
-            const from = new Date(); from.setDate(from.getDate() - 14);
+            const from = new Date(); from.setHours(0, 0, 0, 0);  // only today onwards: past events never show up as overdue
             const to = new Date(); to.setDate(to.getDate() + 60);
             const url = 'https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime&maxResults=500'
                 + '&timeMin=' + encodeURIComponent(from.toISOString()) + '&timeMax=' + encodeURIComponent(to.toISOString());
