@@ -114,7 +114,7 @@
                 <button onclick="syncToCloud(true)" class="hidden sm:inline-flex items-center px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition shadow-sm">
                     <i class="fa-solid fa-rotate mr-2"></i> Sync Now
                 </button>
-                <button id="gcalStatus" onclick="conectarCalendario()" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium transition shadow-sm" title="Show your Google Calendar events in the Daily Plan">📅 Connect Calendar</button>
+                <button id="gcalStatus" onclick="conectarCalendario()" class="relative inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-lg transition shadow-sm" title="Connect Google Calendar">📅<span id="gcalDot" class="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white bg-slate-300"></span></button>
                 <a href="https://notebook.google.com/notebook/de4ed6e6-c083-4c7d-bf6b-cf6239e5c10f" target="_blank" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium transition shadow-sm">
                     <i class="fa-solid fa-robot mr-2"></i> NotebookLM
                 </a>
@@ -957,10 +957,15 @@
         }
         const pad2 = n => String(n).padStart(2, '0');
         const localDateStr = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+        function gcalEstado(color, txt) {
+            const btn = document.getElementById('gcalStatus'), dot = document.getElementById('gcalDot');
+            if (btn) btn.title = txt;
+            if (dot) dot.className = 'absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white ' + color;
+        }
         async function cargarEventosCalendario() {
             const tok = gcalToken();
             const btn = document.getElementById('gcalStatus');
-            if (!tok) { if (btn) btn.innerText = '📅 Connect Calendar'; return; }
+            if (!tok) { gcalEstado('bg-slate-300', 'Connect Google Calendar'); return; }
             const from = new Date(); from.setDate(from.getDate() - 14);
             const to = new Date(); to.setDate(to.getDate() + 60);
             const url = 'https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime&maxResults=500'
@@ -970,7 +975,7 @@
                 if (r.status === 401) {
                     try { sessionStorage.removeItem('gcal_token'); } catch (e) {}
                     window._gcalTokenMem = null;
-                    if (btn) btn.innerText = '📅 Reconnect Calendar';
+                    gcalEstado('bg-amber-400', 'Calendar disconnected: click to reconnect');
                     return;
                 }
                 if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -990,11 +995,11 @@
                             done: false, source: 'calendar'
                         };
                     });
-                if (btn) btn.innerText = '📅 Calendar ✓ (' + window.calendarEvents.length + ')';
+                gcalEstado('bg-emerald-500', 'Google Calendar connected (' + window.calendarEvents.length + ' events). Click to refresh');
                 renderAllViews();
             } catch (e) {
                 console.error('Calendar error:', e);
-                if (btn) btn.innerText = '📅 Calendar error';
+                gcalEstado('bg-red-500', 'Calendar error: click to retry');
             }
         }
         window.cargarEventosCalendario = cargarEventosCalendario;
