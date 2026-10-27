@@ -1090,7 +1090,7 @@
                 if(t.nextSp && t.nextSp !== "Pending" && t.nextSp !== "Mastered!") {
                     const dateMatch = t.nextSp.match(/^\d{4}-\d{2}-\d{2}/);
                     if(dateMatch && dateMatch[0] === targetDateStr) {
-                        tasks.push({ block: 'Syllabus', description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`, done: t.repCompleted || false, source: 'repetition', rawId: t.id, startTime: t.startTime || "10:00", endTime: t.endTime || "12:00" });
+                        tasks.push({ block: 'Syllabus', description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`, done: t.repCompleted || false, source: 'repetition', rawId: t.id, startTime: t.startTime || "10:00", endTime: repFin(t) });
                     }
                 }
             });
@@ -1115,7 +1115,7 @@
                 if(t.nextSp && t.nextSp !== "Pending" && t.nextSp !== "Mastered!") {
                     const dateMatch = t.nextSp.match(/^\d{4}-\d{2}-\d{2}/);
                     if(dateMatch && dateMatch[0] < todayStr && !t.repCompleted) {
-                        tasks.push({ block: 'Syllabus', description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`, done: false, source: 'repetition', rawId: t.id, date: dateMatch[0], startTime: t.startTime || "10:00", endTime: t.endTime || "12:00" });
+                        tasks.push({ block: 'Syllabus', description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`, done: false, source: 'repetition', rawId: t.id, date: dateMatch[0], startTime: t.startTime || "10:00", endTime: repFin(t) });
                     }
                 }
             });
@@ -1609,21 +1609,31 @@
             }
             tema.repStage = (tema.repStage || 1) + 1;
             calcularSiguienteRepeticion(tema);
+            delete tema.startTime; delete tema.endTime;
             saveAll(true);
             renderizarTemas();
         }
 
         // Every repetition date is counted from the initial study date, so moving that date moves them all
-        // Unit progress: read (1) + summary (1) + completed repetitions (up to 4) = 6 points
+        // Unit progress: read (1) + summary (1) + completed repetitions (up to 6) = 8 points
         function unitProgressFrac(t) {
-            const completedReps = Math.min(4, Math.max(0, (t.repStage || 0) - 1));
-            return ((t.read ? 1 : 0) + (t.sumup ? 1 : 0) + completedReps) / 6;
+            const completedReps = Math.min(6, Math.max(0, (t.repStage || 0) - 1));
+            return ((t.read ? 1 : 0) + (t.sumup ? 1 : 0) + completedReps) / 8;
         }
 
+        function repDuracion(stage) {
+            return [120, 60, 90, 60, 90, 90].at(Math.max(0, Math.min(5, (stage || 1) - 1)));
+        }
+        function repFin(t) {
+            if (t.endTime) return t.endTime;
+            const [h, m] = (t.startTime || "10:00").split(':').map(Number);
+            const fin = h * 60 + m + repDuracion(t.repStage);
+            return `${String(Math.floor(fin / 60)).padStart(2, '0')}:${String(fin % 60).padStart(2, '0')}`;
+        }
         function calcularFechasRepeticion(tema) {
             if(!tema.fecha) return [];
-            // Covering the syllabus: 24-48 h / 1 week / 3-4 weeks / 4-6 weeks after that (counted from the end of Round 2)
-            const intervalos = [2, 7, 25, 60];
+            // Ana's system adapted to Covering the syllabus (from the end of Round 2): 24-48 h, +extra, 1 week, +extra, 3-4 weeks, 4-6 weeks after that
+            const intervalos = [2, 4, 7, 15, 25, 60];
             return intervalos.map((d, i) => {
                 let dias = d;
                 const [y, m, day] = tema.fecha.split('-').map(Number);
@@ -1635,7 +1645,7 @@
         function calcularSiguienteRepeticion(tema) {
             const currentStage = tema.repStage || 1;
             const fechas = calcularFechasRepeticion(tema);
-            tema.nextSp = (currentStage <= 4 && fechas[currentStage - 1]) ? `${fechas[currentStage - 1].date} [Rep ${currentStage}]` : (currentStage > 4 ? "Mastered!" : "Pending");
+            tema.nextSp = (currentStage <= 6 && fechas[currentStage - 1]) ? `${fechas[currentStage - 1].date} [Rep ${currentStage}]` : (currentStage > 6 ? "Mastered!" : "Pending");
         }
 
         function limpiarTema(id) {
@@ -1871,7 +1881,7 @@
 
             if(isChecked) {
                 const [startH, startM] = (tema.startTime || "10:00").split(':').map(Number);
-                const [endH, endM] = (tema.endTime || "12:00").split(':').map(Number);
+                const [endH, endM] = (repFin(tema)).split(':').map(Number);
                 const totalMins = (endH * 60 + endM) - (startH * 60 + startM);
                 const duration = totalMins > 0 ? totalMins : 60;
 
@@ -1891,6 +1901,7 @@
                 tema.repStage = currentStage + 1;
                 calcularSiguienteRepeticion(tema);
                 tema.repCompleted = false;
+                delete tema.startTime; delete tema.endTime;
             } else {
                 logs = logs.filter(l => !(l.sourceRef && l.sourceRef.type === 'repetition' && l.sourceRef.id === tema.id));
             }
@@ -1982,7 +1993,7 @@
                             rawId: t.id,
                             date: repDate,
                             startTime: t.startTime || "10:00",
-                            endTime: t.endTime || "12:00",
+                            endTime: repFin(t),
                             block: "Syllabus",
                             description: `[Rep ${t.repStage || 1}] ${t.ref} - ${t.nombre}`,
                             done: t.repCompleted || false,
@@ -2184,7 +2195,7 @@
                             id: 'rep_' + t.id,
                             date: dateMatch[0],
                             startTime: t.startTime || "10:00",
-                            endTime: t.endTime || "12:00",
+                            endTime: repFin(t),
                             block: "Syllabus",
                             description: `[Rep ${t.repStage || 1}] ${t.ref} -${t.nombre}`,
                             done: t.repCompleted || false,
