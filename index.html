@@ -984,6 +984,26 @@
                 }
                 if (!r.ok) throw new Error('HTTP ' + r.status);
                 const data = await r.json();
+                // Rows copied from Calendar keep following their event until they are ticked as done
+                const hoyStr = localDateStr(new Date());
+                const vivos = new Map((data.items || []).filter(ev => ev.status !== 'cancelled').map(ev => [ev.id, ev]));
+                let filasCambiadas = false;
+                weeklySchedule.forEach(s => {
+                    if (!s.gcalId || s.done) return;
+                    const ev = vivos.get(s.gcalId);
+                    if (ev && ev.start && ev.start.dateTime) {
+                        const st = new Date(ev.start.dateTime), en = new Date(ev.end.dateTime);
+                        const upd = { date: localDateStr(st), startTime: `${pad2(st.getHours())}:${pad2(st.getMinutes())}`, endTime: `${pad2(en.getHours())}:${pad2(en.getMinutes())}`, description: ev.summary || s.description };
+                        Object.keys(upd).forEach(k => { if (s[k] !== upd[k]) { s[k] = upd[k]; filasCambiadas = true; } });
+                        if (s.gcalRemoved) { delete s.gcalRemoved; filasCambiadas = true; }
+                    } else if (!ev && s.date >= hoyStr && !s.gcalRemoved) {
+                        // never deleted automatically: only flagged so Ana can delete it herself
+                        s.gcalRemoved = true;
+                        s.description = '⚠ Removed from Calendar · ' + s.description;
+                        filasCambiadas = true;
+                    }
+                });
+                if (filasCambiadas) saveAll(true);
                 window.calendarEvents = (data.items || [])
                     .filter(ev => ev.status !== 'cancelled' && /\bopos/i.test(ev.summary || '') && !/esther/i.test(ev.summary || ''))  // study events only (titles with 'Opos' / 'Oposiciones')
                     .filter(ev => !weeklySchedule.some(s => s.gcalId === ev.id))
