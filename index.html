@@ -993,7 +993,7 @@
                     const ev = vivos.get(s.gcalId);
                     if (ev && ev.start && ev.start.dateTime) {
                         const st = new Date(ev.start.dateTime), en = new Date(ev.end.dateTime);
-                        const upd = { date: localDateStr(st), startTime: `${pad2(st.getHours())}:${pad2(st.getMinutes())}`, endTime: `${pad2(en.getHours())}:${pad2(en.getMinutes())}`, description: ev.summary || s.description };
+                        const upd = { date: localDateStr(st), startTime: `${pad2(st.getHours())}:${pad2(st.getMinutes())}`, endTime: `${pad2(en.getHours())}:${pad2(en.getMinutes())}`, description: ev.summary || s.description, block: bloqueAutoCalendario(ev.summary || s.description) };
                         Object.keys(upd).forEach(k => { if (s[k] !== upd[k]) { s[k] = upd[k]; filasCambiadas = true; } });
                         if (s.gcalRemoved) { delete s.gcalRemoved; filasCambiadas = true; }
                     } else if (!ev && s.date >= hoyStr && !s.gcalRemoved) {
